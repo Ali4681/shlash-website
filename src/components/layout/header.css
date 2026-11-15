@@ -535,6 +535,14 @@
   background: rgba(12, 13, 66, 0.04);
 }
 
+.site-header-root.is-open .site-header__toggle {
+  transform: rotate(90deg);
+}
+
+.site-header-root.is-open .site-header__toggle:hover {
+  transform: rotate(90deg) scale(1.04);
+}
+
 @media (min-width: 1024px) {
   .site-header__toggle {
     display: none;
@@ -554,9 +562,11 @@
   border-radius: 999px;
   background: currentColor;
   transition:
-    transform 0.35s var(--ease-out),
-    top 0.35s var(--ease-out),
-    opacity 0.25s ease;
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    bottom 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease,
+    width 0.35s ease;
 }
 
 .site-header__burger span:nth-child(1) {
@@ -572,18 +582,21 @@
 
 .site-header-root.is-open .site-header__burger span:nth-child(1) {
   top: 50%;
+  width: 100%;
   transform: translateY(-50%) rotate(45deg);
 }
 .site-header-root.is-open .site-header__burger span:nth-child(2) {
   opacity: 0;
+  transform: translateY(-50%) scaleX(0);
 }
 .site-header-root.is-open .site-header__burger span:nth-child(3) {
   bottom: auto;
   top: 50%;
+  width: 100%;
   transform: translateY(-50%) rotate(-45deg);
 }
 
-/* ─── Overlay + Drawer ─── */
+/* ─── Overlay + Drawer (visibility/opacity driven by GSAP) ─── */
 .site-header__overlay {
   pointer-events: none;
   position: fixed;
@@ -595,16 +608,9 @@
     radial-gradient(circle at 85% 0%, rgba(4, 67, 178, 0.28), transparent 42%),
     radial-gradient(circle at 10% 100%, rgba(255, 102, 0, 0.12), transparent 40%),
     rgba(12, 13, 66, 0.58);
-  backdrop-filter: blur(12px) saturate(1.2);
-  transition:
-    opacity 0.4s ease,
-    visibility 0.4s ease;
-}
-
-.site-header-root.is-open .site-header__overlay {
-  pointer-events: auto;
-  opacity: 1;
-  visibility: visible;
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  will-change: opacity;
 }
 
 .site-header__drawer {
@@ -628,10 +634,8 @@
   opacity: 0;
   visibility: hidden;
   transform-origin: top center;
-}
-
-.site-header-root.is-open .site-header__drawer {
-  visibility: visible;
+  perspective: 800px;
+  will-change: transform, opacity, filter, clip-path;
 }
 
 @media (min-width: 1024px) {
@@ -676,6 +680,8 @@
   color: inherit;
   background: transparent;
   border: 1px solid transparent;
+  transform-style: preserve-3d;
+  transform-origin: center top;
   transition:
     background-color 0.25s ease,
     border-color 0.25s ease,

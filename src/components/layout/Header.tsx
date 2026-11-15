@@ -42,6 +42,7 @@ export function Header() {
   const ctaRef = useRef<HTMLAnchorElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const drawerListRef = useRef<HTMLUListElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const lastScrollY = useRef(0);
   const drawerTween = useRef<gsap.core.Timeline | null>(null);
@@ -208,74 +209,189 @@ export function Header() {
   /* Drawer open / close choreography */
   useEffect(() => {
     const drawer = drawerRef.current;
+    const overlay = overlayRef.current;
     const list = drawerListRef.current;
     if (!drawer || !list) return;
 
     drawerTween.current?.kill();
 
-    const links = list.querySelectorAll(".site-header__drawer-link");
-    const meta = drawer.querySelector(".site-header__drawer-meta");
-    const cta = drawer.querySelector(".site-header__drawer-cta");
-    const chips = drawer.querySelectorAll(".site-header__drawer-chip");
+    const links = list.querySelectorAll<HTMLElement>(".site-header__drawer-link");
+    const labels = list.querySelectorAll<HTMLElement>(".site-header__drawer-label");
+    const indexes = list.querySelectorAll<HTMLElement>(".site-header__drawer-index");
+    const meta = drawer.querySelector<HTMLElement>(".site-header__drawer-meta");
+    const cta = drawer.querySelector<HTMLElement>(".site-header__drawer-cta");
+    const chips = drawer.querySelectorAll<HTMLElement>(".site-header__drawer-chip");
+    const glow = drawer.querySelector<HTMLElement>(".site-header__drawer-glow");
 
     if (prefersReducedMotion()) {
       gsap.set(drawer, {
         autoAlpha: menuOpen ? 1 : 0,
-        y: 0,
-        scale: 1,
+        clearProps: menuOpen ? "transform,filter,clipPath" : "",
         pointerEvents: menuOpen ? "auto" : "none",
       });
-      gsap.set([links, meta, cta, chips], { clearProps: "all", autoAlpha: 1, y: 0 });
+      if (overlay) {
+        gsap.set(overlay, {
+          autoAlpha: menuOpen ? 1 : 0,
+          pointerEvents: menuOpen ? "auto" : "none",
+        });
+      }
+      gsap.set([links, meta, cta, chips], {
+        clearProps: "all",
+        autoAlpha: 1,
+        y: 0,
+        x: 0,
+      });
       return;
     }
 
     if (menuOpen) {
-      const tl = gsap.timeline();
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
       drawerTween.current = tl;
-      gsap.set([links, meta, cta, chips], { autoAlpha: 0, y: 14 });
+
+      gsap.set(links, { autoAlpha: 0, y: 28, rotateX: -18 });
+      gsap.set(labels, { x: 18, filter: "blur(6px)" });
+      gsap.set(indexes, { autoAlpha: 0, y: 10 });
+      gsap.set([chips, cta, meta], { autoAlpha: 0, y: 20, scale: 0.96 });
+      if (glow) gsap.set(glow, { scale: 0.6, autoAlpha: 0 });
+
+      if (overlay) {
+        tl.fromTo(
+          overlay,
+          { autoAlpha: 0, pointerEvents: "none" },
+          { autoAlpha: 1, pointerEvents: "auto", duration: 0.38, ease: "power2.out" },
+          0,
+        );
+      }
+
       tl.fromTo(
         drawer,
-        { autoAlpha: 0, y: -18, scale: 0.97, pointerEvents: "none" },
+        {
+          autoAlpha: 0,
+          y: -28,
+          scale: 0.92,
+          filter: "blur(10px)",
+          clipPath: "inset(0 0 100% 0 round 1.5rem)",
+          pointerEvents: "none",
+          transformOrigin: "50% 0%",
+        },
         {
           autoAlpha: 1,
           y: 0,
           scale: 1,
+          filter: "blur(0px)",
+          clipPath: "inset(0 0 0% 0 round 1.5rem)",
           pointerEvents: "auto",
-          duration: 0.42,
+          duration: 0.55,
+          ease: "power4.out",
+        },
+        0.04,
+      );
+
+      if (glow) {
+        tl.to(
+          glow,
+          { scale: 1, autoAlpha: 1, duration: 0.7, ease: "power2.out" },
+          0.12,
+        );
+      }
+
+      tl.to(
+        links,
+        {
+          autoAlpha: 1,
+          y: 0,
+          rotateX: 0,
+          duration: 0.48,
+          stagger: 0.055,
           ease: "power3.out",
         },
+        0.18,
       )
         .to(
-          links,
+          labels,
           {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.38,
-            stagger: 0.045,
+            x: 0,
+            filter: "blur(0px)",
+            duration: 0.42,
+            stagger: 0.055,
             ease: "power3.out",
           },
-          "-=0.18",
+          0.2,
         )
         .to(
-          [chips, cta, meta],
+          indexes,
           {
             autoAlpha: 1,
             y: 0,
             duration: 0.36,
             stagger: 0.05,
-            ease: "power3.out",
+            ease: "power2.out",
           },
-          "-=0.22",
+          0.28,
+        )
+        .to(
+          chips,
+          {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.4,
+            stagger: 0.06,
+            ease: "back.out(1.4)",
+          },
+          0.38,
+        )
+        .to(
+          cta,
+          {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.45,
+            ease: "back.out(1.6)",
+          },
+          0.44,
+        )
+        .to(
+          meta,
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.4, ease: "power2.out" },
+          0.5,
         );
     } else {
-      gsap.to(drawer, {
-        autoAlpha: 0,
-        y: -12,
-        scale: 0.98,
-        pointerEvents: "none",
-        duration: 0.28,
-        ease: "power2.in",
-      });
+      const tl = gsap.timeline({ defaults: { ease: "power2.in" } });
+      drawerTween.current = tl;
+
+      tl.to(
+        [links, chips, cta, meta],
+        {
+          autoAlpha: 0,
+          y: -8,
+          duration: 0.18,
+          stagger: 0.015,
+        },
+        0,
+      )
+        .to(
+          drawer,
+          {
+            autoAlpha: 0,
+            y: -16,
+            scale: 0.96,
+            filter: "blur(6px)",
+            clipPath: "inset(0 0 40% 0 round 1.5rem)",
+            pointerEvents: "none",
+            duration: 0.32,
+          },
+          0.05,
+        );
+
+      if (overlay) {
+        tl.to(
+          overlay,
+          { autoAlpha: 0, pointerEvents: "none", duration: 0.3 },
+          0.08,
+        );
+      }
     }
   }, [menuOpen]);
 
@@ -453,6 +569,7 @@ export function Header() {
       </header>
 
       <div
+        ref={overlayRef}
         className="site-header__overlay"
         aria-hidden={!menuOpen}
         onClick={() => setMenuOpen(false)}
