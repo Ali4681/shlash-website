@@ -178,15 +178,28 @@
   stroke-width: 1.4;
 }
 
+.coverage-pin__label-fo {
+  overflow: visible;
+  pointer-events: none;
+}
+
 .coverage-pin__label {
-  fill: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
   font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.01em;
-  paint-order: stroke;
-  stroke: rgba(12, 13, 66, 0.55);
-  stroke-width: 3px;
-  stroke-linejoin: round;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-align: center;
+  text-shadow:
+    0 0 4px rgba(12, 13, 66, 0.9),
+    0 1px 2px rgba(12, 13, 66, 0.75);
 }
 
 .coverage-pin--active {
@@ -225,9 +238,19 @@
 }
 
 .coverage-tip__text {
-  fill: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  color: #fff;
   font-size: 11px;
   font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-align: center;
 }
 
 /* ─── Legend cards ────────────────────────────────────────────── */

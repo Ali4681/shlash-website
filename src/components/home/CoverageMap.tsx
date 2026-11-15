@@ -339,6 +339,9 @@ export function CoverageMap() {
                 const [cx, cy] = pt;
                 const ox = area.labelOffset?.x ?? 0;
                 const oy = area.labelOffset?.y ?? -16;
+                /* foreignObject: Safari breaks Arabic joining in SVG <text> */
+                const labelW = Math.max(56, area.nameAr.length * 13 + 12);
+                const labelH = 18;
                 return (
                   <g key={area.id} transform={`translate(${cx} ${cy})`}>
                     <g
@@ -348,14 +351,22 @@ export function CoverageMap() {
                       <circle className="coverage-pin__pulse" r="14" />
                       <circle className="coverage-pin__halo" r="10" />
                       <circle className="coverage-pin__dot" r="4.5" />
-                      <text
-                        className="coverage-pin__label"
-                        x={ox}
-                        y={oy}
-                        textAnchor="middle"
+                      <foreignObject
+                        className="coverage-pin__label-fo"
+                        x={ox - labelW / 2}
+                        y={oy - labelH + 2}
+                        width={labelW}
+                        height={labelH}
                       >
-                        {area.nameAr}
-                      </text>
+                        <div
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          className="coverage-pin__label"
+                          dir="rtl"
+                          lang="ar"
+                        >
+                          {area.nameAr}
+                        </div>
+                      </foreignObject>
                     </g>
                   </g>
                 );
@@ -364,7 +375,8 @@ export function CoverageMap() {
 
           {hover &&
             (() => {
-              const tipW = Math.max(72, hover.name.length * 11 + 20);
+              const tipW = Math.max(72, hover.name.length * 12 + 24);
+              const tipH = 26;
               return (
                 <g className="coverage-tip" pointerEvents="none">
                   <rect
@@ -372,17 +384,24 @@ export function CoverageMap() {
                     x={hover.x - tipW / 2}
                     y={hover.y - 22}
                     width={tipW}
-                    height={26}
+                    height={tipH}
                     rx={6}
                   />
-                  <text
-                    className="coverage-tip__text"
-                    x={hover.x}
-                    y={hover.y - 4}
-                    textAnchor="middle"
+                  <foreignObject
+                    x={hover.x - tipW / 2}
+                    y={hover.y - 22}
+                    width={tipW}
+                    height={tipH}
                   >
-                    {hover.name}
-                  </text>
+                    <div
+                      xmlns="http://www.w3.org/1999/xhtml"
+                      className="coverage-tip__text"
+                      dir="rtl"
+                      lang="ar"
+                    >
+                      {hover.name}
+                    </div>
+                  </foreignObject>
                 </g>
               );
             })()}
