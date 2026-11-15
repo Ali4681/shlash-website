@@ -42,7 +42,8 @@
   align-items: center;
   gap: 0.75rem 1rem;
   min-height: 4.1rem;
-  padding: 0.55rem 0.7rem 0.55rem 0.85rem;
+  padding-block: 0.55rem;
+  padding-inline: 0.55rem;
   border-radius: 1.35rem;
   border: 1px solid transparent;
   background: transparent;
@@ -389,6 +390,38 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.45rem;
+}
+
+/*
+  Mobile: nav is display:none, so the 3-col grid puts actions in the 1fr
+  track and breaks edge symmetry with the logo. Use flex space-between
+  so logo↔right padding == menu/WhatsApp↔left padding.
+*/
+@media (max-width: 1023px) {
+  .site-header__shell {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    width: min(1180px, calc(100% - 1rem));
+    padding-block: 0.45rem;
+    padding-inline: 0.45rem;
+  }
+
+  .site-header__brand,
+  .site-header__actions {
+    flex-shrink: 0;
+  }
+
+  .site-header__actions {
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  .site-header__toggle {
+    width: 2.65rem;
+    height: 2.65rem;
+  }
 }
 
 .site-header__cta {
