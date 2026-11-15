@@ -358,12 +358,7 @@ export function CoverageMap() {
                         width={labelW}
                         height={labelH}
                       >
-                        <div
-                          xmlns="http://www.w3.org/1999/xhtml"
-                          className="coverage-pin__label"
-                          dir="rtl"
-                          lang="ar"
-                        >
+                        <div className="coverage-pin__label" dir="rtl" lang="ar">
                           {area.nameAr}
                         </div>
                       </foreignObject>
@@ -393,12 +388,7 @@ export function CoverageMap() {
                     width={tipW}
                     height={tipH}
                   >
-                    <div
-                      xmlns="http://www.w3.org/1999/xhtml"
-                      className="coverage-tip__text"
-                      dir="rtl"
-                      lang="ar"
-                    >
+                    <div className="coverage-tip__text" dir="rtl" lang="ar">
                       {hover.name}
                     </div>
                   </foreignObject>
