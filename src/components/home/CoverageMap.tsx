@@ -273,6 +273,7 @@ export function CoverageMap() {
           className={`coverage-map__svg${ready ? " coverage-map__svg--ready" : ""}`}
           viewBox={`0 0 ${size.w} ${size.h}`}
           width="100%"
+          height="auto"
           role="img"
           aria-label="خريطة تغطية شلاش في سوريا"
         >
