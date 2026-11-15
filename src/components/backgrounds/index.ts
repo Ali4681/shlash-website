@@ -1,0 +1,9 @@
+export { SectionBackground } from "./SectionBackground";
+export { WhoBackground } from "./WhoBackground";
+export { ProductsBackground } from "./ProductsBackground";
+export { CoverageBackground } from "./CoverageBackground";
+export { AboutBackground } from "./AboutBackground";
+export { ContactBackground } from "./ContactBackground";
+export { FooterBackground } from "./FooterBackground";
+export { SectionWaveDivider } from "./SectionWaveDivider";
+export { BG } from "./config";

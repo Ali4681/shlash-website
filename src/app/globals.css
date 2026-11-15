@@ -1,26 +1,453 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --blue: #0443b2;
+  --orange: #ff6600;
+  --navy: #0c0d42;
+  --ice: #e8f0fc;
+  --electric: #0d75ff;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Warm section-background palette */
+  --cream: #f4ebe0;
+  --choco: #0c0d42;
+  --caramel: #c4783a;
+  --burnt-red: #a33d32;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-blue: #0443b2;
+  --color-orange: #ff6600;
+  --color-navy: #0c0d42;
+  --color-ice: #e8f0fc;
+  --color-electric: #0d75ff;
+  --font-sans: var(--font-outfit);
+  --font-arabic: var(--font-somar), var(--font-cairo), var(--font-plex);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: auto;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  background: #e8f0fc;
+  color: #0c0d42;
+  font-family: var(--font-plex), var(--font-outfit), sans-serif;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+::selection {
+  background: rgba(255, 102, 0, 0.28);
+}
+
+.font-en {
+  font-family: var(--font-acumin), var(--font-outfit), sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), "Marhey", var(--font-cairo), sans-serif;
+}
+
+.field {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(12, 13, 66, 0.22);
+  border-radius: 0;
+  color: #0c0d42;
+  padding: 0.85rem 0;
+  outline: none;
+}
+
+.field:focus {
+  border-bottom-color: #ff6600;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* —— Section rhythm —— */
+.section {
+  padding-block: clamp(4rem, 8vw, 6.25rem);
+}
+
+.section-title {
+  margin: 0;
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+
+.section-title--on-dark {
+  color: #fff;
+}
+
+.section-title--compact {
+  font-size: clamp(1.65rem, 3.2vw, 2.35rem);
+}
+
+.section-lead {
+  margin: 0.85rem 0 0;
+  max-width: 36rem;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: color-mix(in srgb, var(--navy) 70%, transparent);
+}
+
+.section-lead--on-dark {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.contact-cta__eyebrow {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-acumin), var(--font-outfit), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+
+/* —— Cinematic 3D hero —— */
+.hero3d {
+  position: relative;
+  height: 600vh;
+  background: #0c0d42;
+}
+
+.hero3d__sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.hero3d-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.hero3d-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  touch-action: none;
+}
+
+.hero3d--reduced .hero3d__poster,
+.hero3d--reduced .hero3d__fallback-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero3d--reduced .hero3d__fallback-video {
+  z-index: 1;
+}
+
+.hero3d--reduced .hero3d__poster {
+  z-index: 0;
+}
+
+/* Loader */
+.hero3d-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.65rem;
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba(4, 67, 178, 0.35), transparent 55%),
+    linear-gradient(160deg, #0c0d42 0%, #061028 55%, #0c0d42 100%);
+  color: #e8f0fc;
+  transition: opacity 0.4s var(--ease-out), visibility 0.4s;
+}
+
+.hero3d-loader--boot {
+  position: absolute;
+}
+
+.hero3d-loader__mark img {
+  width: 5.5rem;
+  height: auto;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.35));
+}
+
+.hero3d-loader__brand {
+  margin: 0;
+  font-family: var(--font-somar), var(--font-cairo), var(--font-plex), sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.hero3d-loader__sub {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(232, 240, 252, 0.55);
+}
+
+.hero3d-loader__bar {
+  width: min(220px, 50vw);
+  height: 2px;
+  margin-top: 0.6rem;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.hero3d-loader__bar > span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #0443b2, #ff6600);
+  transition: width 0.2s linear;
+}
+
+.hero3d-loader__pct {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: rgba(232, 240, 252, 0.65);
+}
+
+/* Overlay UI */
+.hero3d-overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+}
+
+.hero3d-overlay__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(12, 13, 66, 0.45) 0%, transparent 26%),
+    linear-gradient(0deg, rgba(12, 13, 66, 0.88) 0%, rgba(12, 13, 66, 0.35) 38%, transparent 62%);
+}
+
+.hero3d-overlay__title-wrap {
+  position: absolute;
+  inset-inline-start: clamp(1rem, 4vw, 3rem);
+  bottom: clamp(3.8rem, 9vh, 5.8rem);
+  z-index: 2;
+  color: #e8f0fc;
+}
+
+.hero3d-overlay__title-mask {
+  overflow: hidden;
+}
+
+.hero3d-overlay__title {
+  margin: 0;
+  font-family: var(--font-somar), var(--font-cairo), var(--font-plex), sans-serif;
+  font-size: clamp(3.4rem, 16vw, 9.5rem);
+  font-weight: 700;
+  line-height: 0.88;
+  letter-spacing: -0.03em;
+  color: #e8f0fc;
+}
+
+.hero3d-overlay__role {
+  margin: 0.55rem 0 0;
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  color: rgba(232, 240, 252, 0.78);
+}
+
+.hero3d-overlay__copy {
+  position: absolute;
+  inset-inline-end: clamp(1rem, 4vw, 3rem);
+  top: clamp(5.5rem, 12vh, 7rem);
+  z-index: 2;
+  max-width: 15rem;
+  color: #e8f0fc;
+}
+
+@media (max-width: 768px) {
+  .hero3d-overlay__copy {
+    inset-inline-end: auto;
+    inset-inline-start: clamp(1rem, 4vw, 2rem);
+    top: auto;
+    bottom: clamp(7.5rem, 18vh, 10rem);
+  }
+}
+
+.hero3d-overlay__index {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-acumin), var(--font-outfit), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: #ff6600;
+}
+
+.hero3d-overlay__stage {
+  margin: 0;
+  font-family: var(--font-somar), var(--font-cairo), var(--font-plex), sans-serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.hero3d-overlay__line {
+  margin: 0.45rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: rgba(232, 240, 252, 0.68);
+}
+
+.hero3d-overlay__cta {
+  pointer-events: auto;
+  position: absolute;
+  left: 50%;
+  bottom: clamp(4.5rem, 10vh, 6.5rem);
+  z-index: 3;
+  translate: -50% 0;
+  text-align: center;
+}
+
+.hero3d-overlay__cta-kicker {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-acumin), var(--font-outfit), sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #ff6600;
+}
+
+.hero3d-overlay__cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.85rem;
+  padding: 0 1.45rem;
+  background: #0443b2;
+  color: #e8f0fc;
+  font-family: var(--font-somar), var(--font-cairo), var(--font-plex), sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  transition: background 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+}
+
+.hero3d-overlay__cta-btn:hover {
+  background: #0d75ff;
+  transform: translateY(-1px);
+}
+
+.hero3d-overlay__hint {
+  position: absolute;
+  bottom: 1.1rem;
+  left: 50%;
+  z-index: 3;
+  translate: -50% 0;
+  margin: 0;
+  font-family: var(--font-acumin), var(--font-outfit), sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(232, 240, 252, 0.5);
+}
+
+.hero3d-overlay__progress {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  z-index: 4;
+}
+
+.hero3d-overlay__progress > span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #0443b2, #ff6600);
+}
+
+/* Static brand hero — photo + character + mark */
+.scroll-hero {
+  position: relative;
+  height: 100svh;
+  background: #050616;
+}
+
+.scroll-hero__sticky {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.scroll-hero__image {
+  object-position: 48% center;
+  image-rendering: auto;
+}
+
+.scroll-hero__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.scroll-hero__glow {
+  position: absolute;
+  z-index: 1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  .scroll-hero__image {
+    object-position: 72% center;
+  }
+
+  .scroll-hero__glow {
+    width: 70vw;
+    height: 70vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

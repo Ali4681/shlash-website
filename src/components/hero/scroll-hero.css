@@ -1,0 +1,204 @@
+.scroll-hero__frame {
+  transform: scale(1.06);
+  will-change: transform;
+}
+
+.scroll-hero__veil {
+  background:
+    linear-gradient(180deg, rgba(12, 13, 66, 0.55) 0%, transparent 34%),
+    linear-gradient(105deg, rgba(4, 67, 178, 0.18) 0%, transparent 38%),
+    linear-gradient(0deg, rgba(5, 6, 22, 0.94) 0%, rgba(12, 13, 66, 0.52) 34%, transparent 62%);
+}
+
+.scroll-hero__glow {
+  inset: auto auto -18% -8%;
+  width: min(48vw, 520px);
+  height: min(48vw, 520px);
+  background: radial-gradient(circle, rgba(255, 102, 0, 0.22) 0%, transparent 70%);
+  filter: blur(10px);
+}
+
+.scroll-hero__brand {
+  pointer-events: none;
+  position: absolute;
+  inset-inline: clamp(1rem, 4vw, 3rem);
+  bottom: clamp(3.25rem, 7.5vh, 5.25rem);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: #fff;
+  opacity: 0;
+}
+
+.scroll-hero__kicker {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  padding-inline-end: 0.25rem;
+  font-size: clamp(0.92rem, 1.5vw, 1.1rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.scroll-hero__wordmark {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  isolation: isolate;
+  margin: 0;
+  padding-block: 0.12em 0.06em;
+  width: min(100%, 11ch);
+  color: #fff;
+  font-family: var(--font-display), "Marhey", sans-serif !important;
+  font-size: clamp(3.4rem, 14vw, 9rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  overflow: visible;
+}
+
+.scroll-hero__wordmark-stroke {
+  position: absolute;
+  inset: 0.12em 0 0.06em;
+  color: #0443b2;
+  -webkit-text-stroke: 0.14em #0443b2;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.scroll-hero__wordmark-fill {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  text-shadow: 0 0.04em 0 rgba(3, 52, 138, 0.4);
+}
+
+.scroll-hero__en {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-family: var(--font-acumin), var(--font-outfit), sans-serif;
+  font-size: clamp(0.72rem, 1.1vw, 0.9rem);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow:
+    -0.05em 0 0 #0443b2,
+    0.05em 0 0 #0443b2,
+    0 -0.05em 0 #0443b2,
+    0 0.05em 0 #0443b2;
+}
+
+.scroll-hero__aside {
+  pointer-events: none;
+  position: absolute;
+  inset-inline-end: clamp(1rem, 4vw, 3rem);
+  top: clamp(5.75rem, 13vh, 7.5rem);
+  z-index: 3;
+  max-width: min(22rem, calc(100% - 2rem));
+  color: #fff;
+  opacity: 0;
+}
+
+.scroll-hero__aside-label {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-acumin), var(--font-outfit), sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #ff6600;
+}
+
+.scroll-hero__aside-line {
+  margin: 0;
+  max-width: 16ch;
+  font-size: clamp(1.25rem, 2.4vw, 1.7rem);
+  font-weight: 700;
+  line-height: 1.35;
+  text-shadow: 0 10px 28px rgba(5, 6, 22, 0.45);
+}
+
+.scroll-hero__aside-rule {
+  display: block;
+  width: 2.75rem;
+  height: 3px;
+  margin-block: 1rem 1.15rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff6600, #0443b2);
+}
+
+.scroll-hero__actions {
+  pointer-events: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.scroll-hero__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.65rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 999px;
+  font-family: var(--font-somar), var(--font-cairo), sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    transform 0.25s var(--ease-out),
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.scroll-hero__btn--primary {
+  background: #ff6600;
+  color: #fff;
+  box-shadow: 0 12px 28px -16px rgba(255, 102, 0, 0.85);
+}
+
+.scroll-hero__btn--primary:hover {
+  transform: translateY(-1px);
+  background: #ff781a;
+}
+
+.scroll-hero__btn--ghost {
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  background: rgba(12, 13, 66, 0.28);
+  color: #fff;
+  backdrop-filter: blur(10px);
+}
+
+.scroll-hero__btn--ghost:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(12, 13, 66, 0.45);
+}
+
+@media (max-width: 720px) {
+  .scroll-hero__aside {
+    inset-inline: clamp(1rem, 4vw, 2rem);
+    top: auto;
+    bottom: clamp(11.5rem, 28vh, 14rem);
+    max-width: none;
+  }
+
+  .scroll-hero__aside-line {
+    max-width: 22ch;
+  }
+
+  .scroll-hero__brand {
+    bottom: clamp(2.75rem, 6vh, 3.75rem);
+  }
+
+  .scroll-hero__wordmark {
+    font-size: clamp(3.4rem, 20vw, 5.5rem);
+  }
+}

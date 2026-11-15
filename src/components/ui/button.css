@@ -1,0 +1,126 @@
+/* Shlash buttons — clear, stable hover */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.8rem 1.55rem;
+  border: 1.5px solid transparent;
+  border-radius: 0.75rem;
+  font-family: var(--font-somar), var(--font-cairo), var(--font-plex), sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    filter 0.18s ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 3px;
+}
+
+/* Primary */
+.btn--primary {
+  background: var(--orange);
+  color: var(--navy);
+}
+
+.btn--primary:hover,
+.btn--primary:focus-visible {
+  background: #ff7a1a;
+  filter: brightness(1.05);
+}
+
+.btn--primary:active {
+  background: #e85c00;
+  filter: none;
+}
+
+/* Secondary — stays outline; soft ice fill on hover (never solid navy) */
+.btn--secondary {
+  background: #fff;
+  color: var(--navy);
+  border-color: color-mix(in srgb, var(--navy) 18%, transparent);
+}
+
+.btn--secondary:hover,
+.btn--secondary:focus-visible {
+  background: var(--ice);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.btn--secondary:active {
+  background: color-mix(in srgb, var(--ice) 70%, var(--blue));
+}
+
+/* Ghost */
+.btn--ghost {
+  min-height: auto;
+  padding: 0.3rem 0.15rem;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  border-radius: 0;
+  font-weight: 600;
+}
+
+.btn--ghost:hover,
+.btn--ghost:focus-visible {
+  color: var(--electric);
+}
+
+/* On dark sections */
+.btn--on-dark {
+  background: #fff;
+  color: var(--navy);
+}
+
+.btn--on-dark:hover,
+.btn--on-dark:focus-visible {
+  background: var(--ice);
+  color: var(--blue);
+}
+
+.btn--accent {
+  background: var(--orange);
+  color: var(--navy);
+}
+
+.btn--accent:hover,
+.btn--accent:focus-visible {
+  background: #ff7a1a;
+  filter: brightness(1.05);
+}
+
+/* Secondary on navy / blue sections */
+.bg-navy .btn--secondary,
+.bg-blue .btn--secondary {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.bg-navy .btn--secondary:hover,
+.bg-navy .btn--secondary:focus-visible,
+.bg-blue .btn--secondary:hover,
+.bg-blue .btn--secondary:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #fff;
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}

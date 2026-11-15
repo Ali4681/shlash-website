@@ -1,0 +1,378 @@
+/* Coverage map + legend */
+
+.coverage-layout {
+  position: relative;
+  display: grid;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+/* Orderly dashed arcs: map → legend cards */
+.coverage-flights {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+.coverage-flights__path {
+  fill: none;
+  stroke: var(--orange);
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-dasharray: 5 5;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transition-delay: calc(1.15s + var(--flight-i, 0) * 70ms);
+}
+
+.coverage-flights--ready .coverage-flights__path {
+  opacity: 0.72;
+  animation: coverage-flight-crawl 7s linear infinite;
+  animation-delay: calc(var(--flight-i, 0) * 0.35s);
+}
+
+@keyframes coverage-flight-crawl {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+@media (max-width: 899px) {
+  .coverage-flights {
+    display: none;
+  }
+}
+
+@media (min-width: 900px) {
+  .coverage-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2rem;
+  }
+}
+
+.coverage-map {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 0.65rem 0.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(ellipse at 35% 40%, rgba(13, 117, 255, 0.16), transparent 58%),
+    rgba(255, 255, 255, 0.03);
+}
+
+@media (min-width: 640px) {
+  .coverage-map {
+    padding: 1rem 1.15rem;
+    border-radius: 1.25rem;
+  }
+}
+
+.coverage-map__svg {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+/* ─── Country layers ──────────────────────────────────────────── */
+
+.coverage-map__glow {
+  fill: rgba(13, 117, 255, 0.14);
+  stroke: none;
+  opacity: 0;
+  transition: opacity 0.6s ease 0.55s;
+}
+
+.coverage-map__svg--ready .coverage-map__glow {
+  opacity: 1;
+}
+
+.coverage-map__gov {
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 0.85;
+  stroke-linejoin: round;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    fill 0.2s ease,
+    opacity 0.45s ease,
+    filter 0.2s ease;
+  transition-delay: calc(0.55s + var(--gov-i, 0) * 18ms);
+}
+
+.coverage-map__svg--ready .coverage-map__gov {
+  opacity: 1;
+}
+
+.coverage-map__gov:hover {
+  fill: rgba(180, 200, 255, 0.42) !important;
+  filter: brightness(1.25);
+}
+
+/* Stroke draw-on */
+.coverage-map__outline {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.65);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 3600;
+  stroke-dashoffset: 3600;
+  pointer-events: none;
+}
+
+.coverage-map__svg--ready .coverage-map__outline {
+  animation: coverage-draw 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes coverage-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ─── City pins ───────────────────────────────────────────────── */
+
+.coverage-pin {
+  color: rgba(255, 255, 255, 0.55);
+  opacity: 0;
+  transform: scale(0.55);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    opacity 0.4s ease,
+    transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+  transition-delay: calc(1.05s + var(--pin-i, 0) * 90ms);
+}
+
+.coverage-map__svg--ready .coverage-pin {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.coverage-pin__pulse {
+  fill: currentColor;
+  opacity: 0.35;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: coverage-pulse 2.4s ease-out infinite;
+}
+
+.coverage-pin__halo {
+  fill: currentColor;
+  opacity: 0.2;
+}
+
+.coverage-pin__dot {
+  fill: currentColor;
+  stroke: #0c0d42;
+  stroke-width: 1.4;
+}
+
+.coverage-pin__label {
+  fill: rgba(255, 255, 255, 0.92);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  paint-order: stroke;
+  stroke: rgba(12, 13, 66, 0.55);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.coverage-pin--active {
+  color: var(--orange);
+}
+
+.coverage-pin--limited {
+  color: #ffd2a8;
+}
+
+.coverage-pin--inquiry {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+@keyframes coverage-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.4;
+  }
+  70% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+
+/* ─── Governorate tooltip ─────────────────────────────────────── */
+
+.coverage-tip__bg {
+  fill: rgba(12, 13, 66, 0.88);
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 1;
+}
+
+.coverage-tip__text {
+  fill: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ─── Legend cards ────────────────────────────────────────────── */
+
+.coverage-legend {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  gap: 0.55rem;
+}
+
+@media (min-width: 640px) {
+  .coverage-legend {
+    gap: 0.75rem;
+  }
+}
+
+.coverage-card {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease;
+}
+
+@media (min-width: 640px) {
+  .coverage-card {
+    gap: 0.4rem;
+    padding: 1rem 1.15rem;
+    border-radius: 1rem;
+  }
+}
+
+.coverage-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 102, 0, 0.45);
+  transform: translateY(-2px);
+}
+
+.coverage-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.coverage-card__city {
+  margin: 0;
+  font-size: clamp(0.95rem, 2.4vw, 1.35rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #fff;
+}
+
+.coverage-card__note {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+@media (min-width: 640px) {
+  .coverage-card__note {
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+}
+
+.coverage-card__note--muted {
+  color: rgba(255, 255, 255, 0.38);
+  font-family: var(--font-acumin), var(--font-outfit), sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.coverage-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.4rem;
+  padding: 0.12rem 0.5rem;
+  border-radius: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.coverage-status--active {
+  background: var(--orange);
+  color: var(--navy);
+}
+
+.coverage-status--limited {
+  background: transparent;
+  color: #ffd2a8;
+  border: 1px solid rgba(255, 210, 168, 0.45);
+}
+
+.coverage-status--inquiry {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* ─── Reduced motion ──────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .coverage-map__glow,
+  .coverage-map__gov,
+  .coverage-pin {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .coverage-map__outline {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    animation: none !important;
+  }
+
+  .coverage-flights__path {
+    opacity: 0.55 !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .coverage-pin__pulse {
+    animation: none;
+    opacity: 0.2;
+  }
+
+  .coverage-card {
+    transition: none;
+  }
+
+  .coverage-card:hover {
+    transform: none;
+  }
+}
