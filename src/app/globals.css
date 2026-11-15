@@ -29,6 +29,16 @@ html {
   scroll-behavior: auto;
 }
 
+html.scroll-locked,
+html.scroll-locked body {
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+html.scroll-locked .site-header__drawer {
+  touch-action: pan-y;
+}
+
 html.lenis,
 html.lenis body {
   height: auto;

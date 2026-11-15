@@ -72,7 +72,10 @@ export function Footer() {
             {channels.map((ch) => (
               <li key={ch.id}>
                 <a href={ch.href} className="hover:text-white">
-                  {ch.labelAr}: {ch.value}
+                  {ch.labelAr}:{" "}
+                  <span dir="ltr" style={{ unicodeBidi: "isolate" }}>
+                    {ch.value}
+                  </span>
                 </a>
               </li>
             ))}

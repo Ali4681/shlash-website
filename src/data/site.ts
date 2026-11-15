@@ -7,7 +7,7 @@ export const site = {
   roleEn: company.roleEn,
   taglineAr: company.intro,
   taglineEn: company.roleEn,
-  phone: "+963 11 000 0000",
+  phone: "+963 911111111",
   email: "hello@shlash.com",
   address: "دمشق · سوريا",
 };

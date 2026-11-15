@@ -80,6 +80,9 @@
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: 0.01em;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: left;
 }
 
 .contact-card__action {

@@ -86,7 +86,7 @@ export function ContactCards() {
               <Icon type={ch.type} />
             </span>
             <span className="contact-card__title">{meta.title}</span>
-            <strong className="contact-card__value" dir="ltr">
+            <strong className="contact-card__value" dir="ltr" lang="en">
               {ch.value}
             </strong>
             <span className="contact-card__action">{meta.action}</span>

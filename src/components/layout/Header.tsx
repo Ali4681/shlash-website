@@ -13,6 +13,7 @@ import {
 import { nav, site } from "@/data/site";
 import { contactSettings } from "@/data/contact";
 import { cn } from "@/lib/cn";
+import { lockPageScroll, unlockPageScroll } from "@/lib/lenis-control";
 import "./header.css";
 
 const SECTION_IDS = nav.map((item) => item.href.replace("#", ""));
@@ -142,9 +143,57 @@ export function Header() {
   }, [activeHref, moveIndicator]);
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
+    if (!menuOpen) return;
+
+    const scrollY = window.scrollY;
+    lockPageScroll();
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+
+    const onTouchMove = (e: TouchEvent) => {
+      const target = e.target as Element | null;
+      const inDrawer = target?.closest?.(".site-header__drawer");
+      if (!inDrawer) {
+        e.preventDefault();
+        return;
+      }
+      /* Block overscroll chaining from drawer to page */
+      const drawer = drawerRef.current;
+      if (!drawer) return;
+      const { scrollTop, scrollHeight, clientHeight } = drawer;
+      const touch = e.touches[0];
+      const lastY = Number(drawer.dataset.touchY ?? touch.clientY);
+      const delta = touch.clientY - lastY;
+      drawer.dataset.touchY = String(touch.clientY);
+      const atTop = scrollTop <= 0 && delta > 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 1 && delta < 0;
+      if (atTop || atBottom) e.preventDefault();
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      const drawer = drawerRef.current;
+      if (!drawer || !e.touches[0]) return;
+      drawer.dataset.touchY = String(e.touches[0].clientY);
+    };
+
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
+
     return () => {
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
       document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      window.scrollTo(0, scrollY);
+      unlockPageScroll();
     };
   }, [menuOpen]);
 
@@ -441,7 +490,7 @@ export function Header() {
 
         <div className="site-header__drawer-chips">
           {phone && (
-            <a href={phone.href} className="site-header__drawer-chip">
+            <a href={phone.href} className="site-header__drawer-chip" dir="ltr">
               {phone.value}
             </a>
           )}
