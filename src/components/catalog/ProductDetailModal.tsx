@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
 import {
@@ -17,6 +17,14 @@ import { cn } from "@/lib/cn";
 import { lockPageScroll, unlockPageScroll } from "@/lib/lenis-control";
 import "./product-detail-modal.css";
 
+function isMobileViewport() {
+  return window.matchMedia("(max-width: 819px)").matches;
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 export function ProductDetailModal({
   product,
   onClose,
@@ -27,6 +35,9 @@ export function ProductDetailModal({
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLButtonElement>(null);
+  const closingRef = useRef(false);
+  const openTweenRef = useRef<gsap.core.Timeline | null>(null);
   const category = getCategory(product.categoryId);
   const brand = getBrand(product.brandId);
 
@@ -42,6 +53,50 @@ export function ProductDetailModal({
     if (flavors[0]) setFlavor(flavors[0].id);
   }, [flavors]);
 
+  const requestClose = useCallback(() => {
+    if (closingRef.current) return;
+    closingRef.current = true;
+
+    const root = rootRef.current;
+    const panel = panelRef.current;
+    const backdrop = backdropRef.current;
+
+    openTweenRef.current?.kill();
+
+    if (!root || !panel || prefersReducedMotion()) {
+      onClose();
+      return;
+    }
+
+    const mobile = isMobileViewport();
+    const tl = gsap.timeline({
+      defaults: { ease: "power3.in" },
+      onComplete: onClose,
+    });
+
+    if (mobile) {
+      tl.to(
+        panel,
+        { y: "110%", duration: 0.4, ease: "power3.in" },
+        0,
+      );
+      if (backdrop) {
+        tl.to(backdrop, { autoAlpha: 0, duration: 0.28, ease: "power2.in" }, 0.05);
+      }
+      tl.to(root, { autoAlpha: 0, duration: 0.22, ease: "power2.in" }, 0.16);
+    } else {
+      tl.to(
+        panel,
+        { y: 28, scale: 0.96, autoAlpha: 0, duration: 0.3, ease: "power2.in" },
+        0,
+      );
+      if (backdrop) {
+        tl.to(backdrop, { autoAlpha: 0, duration: 0.24, ease: "power2.in" }, 0);
+      }
+      tl.to(root, { autoAlpha: 0, duration: 0.2, ease: "power2.in" }, 0.08);
+    }
+  }, [onClose]);
+
   useEffect(() => {
     const scrollY = window.scrollY;
     lockPageScroll();
@@ -53,7 +108,7 @@ export function ProductDetailModal({
     document.body.style.width = "100%";
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") requestClose();
     };
 
     const onTouchStart = (e: TouchEvent) => {
@@ -94,36 +149,70 @@ export function ProductDetailModal({
     document.addEventListener("touchmove", onTouchMove, { passive: false });
     document.addEventListener("wheel", onWheel, { passive: false });
 
-    const isMobile = window.matchMedia("(max-width: 819px)").matches;
+    const root = rootRef.current;
+    const panel = panelRef.current;
+    const backdrop = backdropRef.current;
+    const mobile = isMobileViewport();
+    const reduced = prefersReducedMotion();
 
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        rootRef.current,
-        { autoAlpha: 0 },
-        { autoAlpha: 1, duration: 0.28, ease: "power2.out" },
-      );
-      gsap.fromTo(
-        panelRef.current,
-        isMobile
-          ? { y: "108%", autoAlpha: 1 }
-          : { y: 28, scale: 0.96, autoAlpha: 0 },
-        isMobile
-          ? { y: 0, autoAlpha: 1, duration: 0.48, ease: "power3.out" }
-          : { y: 0, scale: 1, autoAlpha: 1, duration: 0.45, ease: "power3.out" },
-      );
+      if (!root || !panel) return;
 
-      if (isMobile) {
-        gsap.fromTo(
-          ".product-modal__media, .product-modal__dock > *",
-          { y: 18, autoAlpha: 0 },
+      if (reduced) {
+        gsap.set(root, { autoAlpha: 1 });
+        gsap.set(panel, { clearProps: "transform" });
+        if (backdrop) gsap.set(backdrop, { autoAlpha: 1 });
+        return;
+      }
+
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      openTweenRef.current = tl;
+
+      gsap.set(root, { autoAlpha: 0 });
+      if (backdrop) gsap.set(backdrop, { autoAlpha: 0 });
+
+      if (mobile) {
+        gsap.set(panel, { y: "110%" });
+        gsap.set(".product-modal__media", { y: 16, autoAlpha: 0 });
+        gsap.set(".product-modal__dock-item", { y: 22, autoAlpha: 0 });
+        gsap.set(".product-modal__swatches", { y: 10, autoAlpha: 0 });
+
+        tl.to(root, { autoAlpha: 1, duration: 0.2, ease: "power2.out" }, 0);
+        if (backdrop) {
+          tl.to(backdrop, { autoAlpha: 1, duration: 0.32, ease: "power2.out" }, 0);
+        }
+        tl.to(panel, { y: 0, duration: 0.5, ease: "power3.out" }, 0.04);
+        tl.to(
+          ".product-modal__media",
+          { y: 0, autoAlpha: 1, duration: 0.4, ease: "power2.out" },
+          0.18,
+        );
+        tl.to(
+          ".product-modal__swatches",
+          { y: 0, autoAlpha: 1, duration: 0.35, ease: "power2.out" },
+          0.28,
+        );
+        tl.to(
+          ".product-modal__dock-item",
           {
             y: 0,
             autoAlpha: 1,
-            duration: 0.4,
-            stagger: 0.045,
-            delay: 0.12,
+            duration: 0.38,
+            stagger: 0.05,
             ease: "power2.out",
           },
+          0.26,
+        );
+      } else {
+        gsap.set(panel, { y: 28, scale: 0.96, autoAlpha: 0 });
+        tl.to(root, { autoAlpha: 1, duration: 0.22, ease: "power2.out" }, 0);
+        if (backdrop) {
+          tl.to(backdrop, { autoAlpha: 1, duration: 0.3, ease: "power2.out" }, 0);
+        }
+        tl.to(
+          panel,
+          { y: 0, scale: 1, autoAlpha: 1, duration: 0.45, ease: "power3.out" },
+          0.04,
         );
       }
     }, rootRef);
@@ -133,6 +222,8 @@ export function ProductDetailModal({
       document.removeEventListener("touchmove", onTouchMove);
       document.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKey);
+      openTweenRef.current?.kill();
+      openTweenRef.current = null;
       document.body.style.overflow = "";
       document.body.style.position = "";
       document.body.style.top = "";
@@ -143,14 +234,14 @@ export function ProductDetailModal({
       unlockPageScroll();
       ctx.revert();
     };
-  }, [onClose]);
+  }, [requestClose]);
 
   useEffect(() => {
     if (!mediaRef.current || !flavors.length) return;
     gsap.fromTo(
       mediaRef.current,
-      { autoAlpha: 0.65, scale: 0.985 },
-      { autoAlpha: 1, scale: 1, duration: 0.4, ease: "power2.out" },
+      { autoAlpha: 0.72, scale: 0.985 },
+      { autoAlpha: 1, scale: 1, duration: 0.38, ease: "power2.out" },
     );
   }, [flavor, flavors.length]);
 
@@ -167,10 +258,11 @@ export function ProductDetailModal({
   return createPortal(
     <div ref={rootRef} className="product-modal" role="presentation">
       <button
+        ref={backdropRef}
         type="button"
         className="product-modal__backdrop"
         aria-label="إغلاق"
-        onClick={onClose}
+        onClick={requestClose}
       />
       <div
         ref={panelRef}
@@ -183,7 +275,12 @@ export function ProductDetailModal({
           <span />
         </div>
 
-        <button type="button" className="product-modal__close" onClick={onClose} aria-label="إغلاق">
+        <button
+          type="button"
+          className="product-modal__close"
+          onClick={requestClose}
+          aria-label="إغلاق"
+        >
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path
               d="M3.5 3.5l9 9M12.5 3.5l-9 9"
@@ -232,7 +329,7 @@ export function ProductDetailModal({
           </div>
 
           <div className="product-modal__content product-modal__dock">
-            <div className="product-modal__identity">
+            <div className="product-modal__identity product-modal__dock-item">
               <p className="product-modal__eyebrow" dir="ltr">
                 {product.nameEn}
               </p>
@@ -242,7 +339,7 @@ export function ProductDetailModal({
               <p className="product-modal__meta-line">{metaBits.join(" · ")}</p>
             </div>
 
-            <p className="product-modal__desc">{product.descriptionAr}</p>
+            <p className="product-modal__desc product-modal__dock-item">{product.descriptionAr}</p>
 
             <ul className="product-modal__facts" aria-hidden="true">
               {product.weight && <li>{product.weight}</li>}
@@ -282,7 +379,7 @@ export function ProductDetailModal({
             )}
 
             {primaryUnit && (
-              <div className="product-modal__price-hero">
+              <div className="product-modal__price-hero product-modal__dock-item">
                 <span className="product-modal__price-label">{primaryUnit.labelAr}</span>
                 <strong className="product-modal__price-value">{formatMoney(primaryUnit.price)}</strong>
               </div>
@@ -290,7 +387,7 @@ export function ProductDetailModal({
 
             <div
               className={cn(
-                "product-modal__units-block",
+                "product-modal__units-block product-modal__dock-item",
                 product.units.length < 2 && "product-modal__units-block--solo",
               )}
             >
@@ -311,7 +408,17 @@ export function ProductDetailModal({
               </ul>
             </div>
 
-            <a href="#contact" className="product-modal__cta" onClick={onClose}>
+            <a
+              href="#contact"
+              className="product-modal__cta product-modal__dock-item"
+              onClick={(e) => {
+                e.preventDefault();
+                requestClose();
+                window.setTimeout(() => {
+                  document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+                }, 420);
+              }}
+            >
               استفسر عن هذا الصنف
             </a>
           </div>
