@@ -108,9 +108,6 @@ export function ProductCard({ product, promo = false, index = 0 }: Props) {
         <div className="product-card__shell">
           {/* Ambient layers */}
           <span className="product-card__blob" aria-hidden="true" />
-          <span className="product-card__watermark" aria-hidden="true">
-            {product.nameAr}
-          </span>
           <span className="product-card__sweep" aria-hidden="true" />
 
           {promo && (

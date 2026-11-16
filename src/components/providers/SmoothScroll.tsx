@@ -23,18 +23,26 @@ function resolveHashTarget(hash: string): HTMLElement | null {
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    /* Touch devices need native momentum — Lenis syncTouch feels heavy/laggy. */
+    const preferNativeTouch =
+      window.matchMedia("(pointer: coarse)").matches ||
+      window.matchMedia("(hover: none)").matches ||
+      (navigator.maxTouchPoints > 0 && window.matchMedia("(max-width: 1024px)").matches);
 
     if ("scrollRestoration" in history) {
       history.scrollRestoration = "manual";
     }
 
     const lenis = new Lenis({
-      duration: reduceMotion ? 0.01 : 1.55,
+      duration: reduceMotion ? 0.01 : preferNativeTouch ? 1.05 : 1.25,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: !reduceMotion,
-      wheelMultiplier: 0.85,
-      touchMultiplier: 1.05,
-      syncTouch: true,
+      smoothWheel: !reduceMotion && !preferNativeTouch,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1,
+      /* Keep finger scroll native on phones/tablets */
+      syncTouch: false,
+      syncTouchLerp: 0.1,
+      touchInertiaExponent: 1.5,
     });
 
     lenis.on("scroll", ScrollTrigger.update);
@@ -45,8 +53,12 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     };
 
     gsap.ticker.add(ticker);
-    gsap.ticker.lagSmoothing(0);
+    /* Allow GSAP to drop catch-up work on janky mobile frames */
+    gsap.ticker.lagSmoothing(preferNativeTouch ? 500 : 0);
     document.documentElement.classList.add("lenis");
+    if (preferNativeTouch) {
+      document.documentElement.classList.add("lenis-native-touch");
+    }
 
     // Always land on the hero/header after refresh — ignore leftover hashes
     lenis.scrollTo(0, { immediate: true });
@@ -117,7 +129,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       gsap.ticker.remove(ticker);
       registerLenis(null);
       lenis.destroy();
-      document.documentElement.classList.remove("lenis");
+      document.documentElement.classList.remove("lenis", "lenis-native-touch");
     };
   }, []);
 
