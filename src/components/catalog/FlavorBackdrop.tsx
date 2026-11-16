@@ -1,36 +1,27 @@
+"use client";
+
 import Image from "next/image";
 import type { FlavorId } from "@/data/catalog";
+import { productFlavors } from "@/data/catalog";
+import { usePrefs } from "@/components/providers/PrefsProvider";
+import { pickLocalized } from "@/lib/i18n/dictionaries";
 import { cn } from "@/lib/cn";
 import "./flavor-backdrop.css";
 
-const FLAVOR_SCENES: Record<
-  FlavorId,
-  { src: string; alt: string; labelAr: string }
-> = {
-  chocolate: {
-    src: "/media/flavors/chocolate.jpg",
-    alt: "شوكولا",
-    labelAr: "شوكولا",
-  },
-  milk: {
-    src: "/media/flavors/milk.jpg",
-    alt: "حليب",
-    labelAr: "حليب",
-  },
-  strawberry: {
-    src: "/media/flavors/strawberry.jpg",
-    alt: "فريز",
-    labelAr: "فريز",
-  },
-  banana: {
-    src: "/media/flavors/banana.jpg",
-    alt: "موز",
-    labelAr: "موز",
-  },
+const FLAVOR_SCENES: Record<FlavorId, { src: string }> = {
+  chocolate: { src: "/media/flavors/chocolate.jpg" },
+  milk: { src: "/media/flavors/milk.jpg" },
+  strawberry: { src: "/media/flavors/strawberry.jpg" },
+  banana: { src: "/media/flavors/banana.jpg" },
 };
 
 export function FlavorBackdrop({ flavor }: { flavor: FlavorId }) {
+  const { locale } = usePrefs();
   const scene = FLAVOR_SCENES[flavor];
+  const meta = productFlavors.find((f) => f.id === flavor);
+  const label = meta
+    ? pickLocalized(locale, meta.nameAr, meta.nameEn)
+    : flavor;
 
   return (
     <div className={cn("flavor-bg", `flavor-bg--${flavor}`)} aria-hidden>
@@ -54,7 +45,7 @@ export function FlavorBackdrop({ flavor }: { flavor: FlavorId }) {
         />
       </div>
       <div className="flavor-bg__veil" />
-      <p className="flavor-bg__caption">{scene.labelAr}</p>
+      <p className="flavor-bg__caption">{label}</p>
     </div>
   );
 }

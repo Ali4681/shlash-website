@@ -1,26 +1,8 @@
-import { contactSettings, type ContactChannel } from "@/data/contact";
-import "./contact-cards.css";
+"use client";
 
-const copy: Record<
-  ContactChannel["type"],
-  { title: string; action: string; icon: string }
-> = {
-  whatsapp: {
-    title: "واتساب",
-    action: "راسلنا مباشرة",
-    icon: "wa",
-  },
-  phone: {
-    title: "اتصال",
-    action: "اتصل بنا الآن",
-    icon: "phone",
-  },
-  email: {
-    title: "البريد",
-    action: "أرسل إيميل",
-    icon: "email",
-  },
-};
+import type { ContactChannel } from "@/data/contact";
+import { usePrefs } from "@/components/providers/PrefsProvider";
+import "./contact-cards.css";
 
 function Icon({ type }: { type: ContactChannel["type"] }) {
   if (type === "whatsapp") {
@@ -67,8 +49,24 @@ function Icon({ type }: { type: ContactChannel["type"] }) {
   );
 }
 
-export function ContactCards() {
-  const channels = contactSettings.channels.filter((c) => c.enabled);
+export function ContactCards({ channels: allChannels }: { channels: ContactChannel[] }) {
+  const { dict } = usePrefs();
+  const channels = allChannels.filter((c) => c.enabled);
+
+  const copy = {
+    whatsapp: {
+      title: dict.contactCards.whatsappTitle,
+      action: dict.contactCards.whatsappAction,
+    },
+    phone: {
+      title: dict.contactCards.phoneTitle,
+      action: dict.contactCards.phoneAction,
+    },
+    email: {
+      title: dict.contactCards.emailTitle,
+      action: dict.contactCards.emailAction,
+    },
+  } as const;
 
   return (
     <div className="contact-cards">

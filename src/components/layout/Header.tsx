@@ -10,13 +10,34 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { nav, site } from "@/data/site";
-import { contactSettings } from "@/data/contact";
+import type { ContactChannel, SocialLink } from "@/data/contact";
 import { cn } from "@/lib/cn";
+import { pickLocalized } from "@/lib/i18n/dictionaries";
 import { lockPageScroll, unlockPageScroll } from "@/lib/lenis-control";
+import { usePrefs } from "@/components/providers/PrefsProvider";
+import { PrefsControls } from "@/components/ui/PrefsControls";
 import "./header.css";
 
-const SECTION_IDS = nav.map((item) => item.href.replace("#", ""));
+type NavItem = { href: string; label: string };
+type SiteInfo = {
+  nameAr: string;
+  nameEn: string;
+  roleAr: string;
+  roleEn: string;
+  taglineAr: string;
+  taglineEn: string;
+  phone: string;
+  email: string;
+  address: string;
+};
+type ContactInfo = {
+  hoursAr: string;
+  hoursEn: string;
+  addressAr: string;
+  addressEn?: string;
+  channels: ContactChannel[];
+  social: SocialLink[];
+};
 
 function prefersReducedMotion() {
   return (
@@ -25,12 +46,28 @@ function prefersReducedMotion() {
   );
 }
 
-export function Header() {
+export function Header({
+  site,
+  nav,
+  contact,
+}: {
+  site: SiteInfo;
+  nav: NavItem[];
+  contact: ContactInfo;
+}) {
+  const { locale, dict } = usePrefs();
+  const brandName = pickLocalized(locale, site.nameAr, site.nameEn);
+  const brandRole = pickLocalized(locale, site.roleAr, site.roleEn);
+  const hours = pickLocalized(locale, contact.hoursAr, contact.hoursEn);
+  const localizedNav = nav.map((item) => ({
+    ...item,
+    label: dict.nav[item.href] ?? item.label,
+  }));
+  const sectionIds = localizedNav.map((item) => item.href.replace("#", ""));
   const [solid, setSolid] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [activeHref, setActiveHref] = useState(nav[0]?.href ?? "#top");
+  const [activeHref, setActiveHref] = useState(localizedNav[0]?.href ?? "#top");
   const [indicatorReady, setIndicatorReady] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -47,10 +84,10 @@ export function Header() {
   const lastScrollY = useRef(0);
   const drawerTween = useRef<gsap.core.Timeline | null>(null);
 
-  const whatsapp = contactSettings.channels.find(
+  const whatsapp = contact.channels.find(
     (c) => c.type === "whatsapp" && c.enabled,
   );
-  const phone = contactSettings.channels.find(
+  const phone = contact.channels.find(
     (c) => c.type === "phone" && c.enabled,
   );
 
@@ -98,9 +135,6 @@ export function Header() {
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
-      const doc = document.documentElement;
-      const max = Math.max(doc.scrollHeight - window.innerHeight, 1);
-      setProgress(Math.min(y / max, 1));
 
       const hero = document.getElementById("story");
       const threshold = hero
@@ -121,8 +155,8 @@ export function Header() {
       }
       lastScrollY.current = y;
 
-      let current = nav[0]?.href ?? "#top";
-      for (const id of SECTION_IDS) {
+      let current = localizedNav[0]?.href ?? "#top";
+      for (const id of sectionIds) {
         if (id === "top") continue;
         const el = document.getElementById(id);
         if (!el) continue;
@@ -467,24 +501,14 @@ export function Header() {
       )}
     >
       <header className="site-header" role="banner">
-        <div
-          ref={shellRef}
-          className="site-header__shell"
-          style={{ ["--scroll-progress" as string]: String(progress) }}
-        >
-          <span className="site-header__progress" aria-hidden>
-            <span
-              className="site-header__progress-fill"
-              style={{ transform: `scaleX(${progress})` }}
-            />
-          </span>
+        <div ref={shellRef} className="site-header__shell">
           <span className="site-header__sheen" aria-hidden />
 
-          <a href="#top" className="site-header__brand" aria-label={site.nameAr}>
+          <a href="#top" className="site-header__brand" aria-label={brandName}>
             <span className="site-header__logo-wrap">
               <Image
                 src="/media/character.png"
-                alt={site.nameAr}
+                alt={brandName}
                 width={96}
                 height={96}
                 className="site-header__logo"
@@ -492,15 +516,17 @@ export function Header() {
               />
             </span>
             <span className="site-header__brand-text">
-              <strong className="site-header__brand-name">{site.nameAr}</strong>
-              <span className="site-header__brand-role">{site.roleEn}</span>
+              <strong className="site-header__brand-name">{brandName}</strong>
+              <span className="site-header__brand-role" dir={locale === "en" ? "ltr" : undefined}>
+                {brandRole}
+              </span>
             </span>
           </a>
 
           <nav
             ref={navRef}
             className="site-header__nav"
-            aria-label="التنقل الرئيسي"
+            aria-label={dict.header.mainNav}
             onPointerMove={onNavPointerMove}
             onPointerLeave={onNavPointerLeave}
           >
@@ -510,7 +536,7 @@ export function Header() {
               className={cn("site-header__indicator", indicatorReady && "is-ready")}
               aria-hidden
             />
-            {nav.map((item) => (
+            {localizedNav.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
@@ -532,6 +558,7 @@ export function Header() {
           </nav>
 
           <div className="site-header__actions">
+            <PrefsControls tone="site" className="site-header__prefs" />
             {whatsapp && (
               <a
                 ref={ctaRef}
@@ -543,14 +570,14 @@ export function Header() {
                 onPointerLeave={onCtaLeave}
               >
                 <span className="site-header__cta-dot" aria-hidden />
-                <span className="site-header__cta-label">WhatsApp</span>
+                <span className="site-header__cta-label">{dict.header.whatsapp}</span>
                 <span className="site-header__cta-glow" aria-hidden />
               </a>
             )}
             <button
               type="button"
               className="site-header__toggle"
-              aria-label={menuOpen ? "إغلاق القائمة" : "فتح القائمة"}
+              aria-label={menuOpen ? dict.header.closeMenu : dict.header.openMenu}
               aria-expanded={menuOpen}
               aria-controls="site-header-drawer"
               onClick={() => {
@@ -582,11 +609,11 @@ export function Header() {
         role="dialog"
         aria-modal={menuOpen}
         aria-hidden={!menuOpen}
-        aria-label="قائمة التنقل"
+        aria-label={dict.header.mainNav}
       >
         <div className="site-header__drawer-glow" aria-hidden />
         <ul ref={drawerListRef} className="site-header__drawer-list">
-          {nav.map((item, i) => (
+          {localizedNav.map((item, i) => (
             <li key={item.href}>
               <a
                 href={item.href}
@@ -612,8 +639,12 @@ export function Header() {
             </a>
           )}
           <span className="site-header__drawer-chip site-header__drawer-chip--muted">
-            {contactSettings.hoursEn}
+            {hours}
           </span>
+        </div>
+
+        <div className="site-header__drawer-prefs">
+          <PrefsControls tone="site" />
         </div>
 
         {whatsapp && (
@@ -625,14 +656,14 @@ export function Header() {
             onClick={() => setMenuOpen(false)}
           >
             <span className="site-header__cta-dot" aria-hidden />
-            تواصل عبر واتساب
+            {dict.header.whatsapp}
           </a>
         )}
 
         <p className="site-header__drawer-meta">
-          {contactSettings.hoursAr}
+          {hours}
           <br />
-          {contactSettings.addressAr}
+          {pickLocalized(locale, contact.addressAr, contact.addressEn)}
         </p>
       </div>
     </div>

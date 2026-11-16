@@ -1,12 +1,19 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Cairo, IBM_Plex_Sans_Arabic, Outfit } from "next/font/google";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { company } from "@/data/company";
 import { marhey } from "@/lib/fonts";
+import {
+  LOCALE_COOKIE,
+  THEME_COOKIE,
+  localeDir,
+  parseLocale,
+  parseTheme,
+} from "@/lib/prefs";
+import { PrefsProvider } from "@/components/providers/PrefsProvider";
 import "./globals.css";
+import "./site-dark.css";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -34,6 +41,10 @@ const cairo = Cairo({
   weight: ["400", "500", "600", "700", "800"],
 });
 
+/** Cookie-backed locale/theme — allow blocking render for prefs. */
+export const instant = false;
+
+/** Static metadata only — Prisma in generateMetadata blocks admin routes under cacheComponents. */
 export const metadata: Metadata = {
   metadataBase: new URL("https://shlash.com"),
   title: `${company.nameAr} · ${company.roleAr}`,
@@ -47,32 +58,38 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+const prefsBootScript = `(()=>{try{var c=document.cookie||'';var g=function(n){var m=c.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?decodeURIComponent(m[1]):''};var l=g('shlash_locale');var t=g('shlash_theme');if(l!=='ar'&&l!=='en')l='ar';if(t!=='light'&&t!=='dark')t='light';var r=document.documentElement;r.lang=l;r.dir=l==='ar'?'rtl':'ltr';r.dataset.theme=t;r.style.colorScheme=t;}catch(e){}})();`;
+
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const jar = await cookies();
+  const locale = parseLocale(jar.get(LOCALE_COOKIE)?.value);
+  const theme = parseTheme(jar.get(THEME_COOKIE)?.value);
+  const dir = localeDir(locale);
+
   return (
     <html
-      lang="ar"
-      dir="rtl"
+      lang={locale}
+      dir={dir}
+      data-theme={theme}
       className={`${outfit.variable} ${acumin.variable} ${plex.variable} ${cairo.variable} ${marhey.variable} h-full antialiased`}
       style={
         {
           ["--font-somar" as string]: "var(--font-cairo)",
+          colorScheme: theme,
         } as CSSProperties
       }
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: prefsBootScript }} />
+      </head>
       <body
         className="min-h-full flex flex-col bg-ice text-navy"
         suppressHydrationWarning
       >
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{if('scrollRestoration' in history)history.scrollRestoration='manual';if(location.hash&&location.hash!=='#top'){history.replaceState(null,'',location.pathname+location.search)}window.scrollTo(0,0)}catch(e){}`,
-          }}
-        />
-        <SmoothScroll>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </SmoothScroll>
+        <PrefsProvider locale={locale} theme={theme}>
+          {children}
+        </PrefsProvider>
       </body>
     </html>
   );

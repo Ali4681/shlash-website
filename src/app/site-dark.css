@@ -1,0 +1,410 @@
+/* ── Public site — advanced dark theme ───────────────────────────── */
+
+/* Header glass when scrolled / open */
+html[data-theme="dark"] .site-header-root.is-solid .site-header__shell,
+html[data-theme="dark"] .site-header-root.is-open .site-header__shell {
+  color: #f2f5ff;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 42%),
+    linear-gradient(135deg, rgba(18, 24, 58, 0.92), rgba(10, 14, 36, 0.94));
+  border-color: rgba(140, 165, 255, 0.16);
+  backdrop-filter: blur(24px) saturate(1.5);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 0 0 1px rgba(255, 102, 0, 0.05),
+    0 22px 50px -28px rgba(0, 0, 0, 0.85);
+}
+
+html[data-theme="dark"] .site-header-root.is-solid .site-header__shell::before {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(90, 140, 255, 0.22),
+    transparent 68%
+  );
+}
+
+html[data-theme="dark"] .site-header-root.is-solid .site-header__sheen,
+html[data-theme="dark"] .site-header-root.is-open .site-header__sheen {
+  opacity: 0.35;
+  background: linear-gradient(
+    115deg,
+    transparent 28%,
+    rgba(255, 140, 60, 0.18) 46%,
+    rgba(120, 160, 255, 0.2) 54%,
+    transparent 70%
+  );
+}
+
+html[data-theme="dark"] .site-header-root.is-solid .site-header__nav,
+html[data-theme="dark"] .site-header-root.is-open .site-header__nav {
+  background: rgba(120, 150, 255, 0.08);
+  border-color: rgba(140, 165, 255, 0.14);
+}
+
+html[data-theme="dark"] .site-header-root.is-solid .site-header__spotlight,
+html[data-theme="dark"] .site-header-root.is-open .site-header__spotlight {
+  background: radial-gradient(
+    140px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(255, 140, 60, 0.18),
+    transparent 55%
+  );
+}
+
+html[data-theme="dark"] .site-header-root.is-solid .site-header__indicator,
+html[data-theme="dark"] .site-header-root.is-open .site-header__indicator {
+  background: linear-gradient(160deg, rgba(40, 50, 100, 0.95), rgba(18, 24, 56, 0.98));
+  box-shadow:
+    0 0 0 1px rgba(255, 140, 60, 0.18) inset,
+    0 10px 22px -14px rgba(255, 102, 0, 0.45);
+}
+
+html[data-theme="dark"] .site-header-root.is-solid .site-header__link.is-active,
+html[data-theme="dark"] .site-header-root.is-open .site-header__link.is-active {
+  color: #fff;
+}
+
+html[data-theme="dark"] .site-header-root.is-solid .site-header__logo-wrap,
+html[data-theme="dark"] .site-header-root.is-open .site-header__logo-wrap {
+  box-shadow:
+    0 0 0 2px rgba(255, 140, 60, 0.35),
+    0 0 22px -4px rgba(255, 102, 0, 0.55),
+    0 6px 16px -8px rgba(0, 0, 0, 0.55);
+}
+
+html[data-theme="dark"] .site-header__cta {
+  color: #140a04;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 0 0 1px rgba(255, 180, 100, 0.2),
+    0 14px 30px -12px rgba(255, 102, 0, 0.95),
+    0 0 28px -8px rgba(255, 102, 0, 0.55);
+}
+
+html[data-theme="dark"] .site-header-root.is-solid .site-header__toggle,
+html[data-theme="dark"] .site-header-root.is-open .site-header__toggle {
+  border-color: rgba(140, 165, 255, 0.18);
+  background: rgba(120, 150, 255, 0.1);
+}
+
+html[data-theme="dark"] .site-header__overlay {
+  background:
+    radial-gradient(circle at 85% 0%, rgba(70, 110, 255, 0.32), transparent 42%),
+    radial-gradient(circle at 10% 100%, rgba(255, 102, 0, 0.18), transparent 40%),
+    rgba(2, 4, 14, 0.72);
+}
+
+html[data-theme="dark"] .site-header__drawer {
+  border-color: rgba(140, 165, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 35%),
+    linear-gradient(165deg, rgba(18, 24, 56, 0.97), rgba(8, 12, 30, 0.98));
+  color: #f2f5ff;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 36px 70px -36px rgba(0, 0, 0, 0.9),
+    0 0 50px -18px rgba(255, 102, 0, 0.22);
+}
+
+html[data-theme="dark"] .site-header__drawer-glow {
+  background: radial-gradient(circle, rgba(90, 140, 255, 0.28), transparent 70%);
+}
+
+html[data-theme="dark"] .site-header__drawer-link:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 102, 0, 0.12),
+    rgba(70, 110, 255, 0.1)
+  );
+}
+
+html[data-theme="dark"] .site-header__drawer-link.is-active {
+  background: linear-gradient(
+    120deg,
+    rgba(255, 102, 0, 0.18),
+    rgba(70, 110, 255, 0.14)
+  );
+  border-color: rgba(255, 140, 60, 0.22);
+}
+
+html[data-theme="dark"] .site-header__drawer-chip {
+  border-color: rgba(140, 165, 255, 0.16);
+  background: rgba(20, 28, 64, 0.85);
+  color: #e8edff;
+}
+
+html[data-theme="dark"] .site-header__drawer-cta {
+  color: #140a04;
+  box-shadow:
+    0 16px 32px -16px rgba(255, 102, 0, 0.95),
+    0 0 28px -8px rgba(255, 102, 0, 0.45);
+}
+
+/* Buttons */
+html[data-theme="dark"] .btn--primary,
+html[data-theme="dark"] .btn--accent {
+  color: #140a04;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 12px 26px -12px rgba(255, 102, 0, 0.85),
+    0 0 24px -8px rgba(255, 102, 0, 0.45);
+}
+
+html[data-theme="dark"] .btn--secondary {
+  background: linear-gradient(160deg, rgba(30, 38, 78, 0.9), rgba(14, 18, 42, 0.95));
+  color: #e8edff;
+  border-color: rgba(140, 165, 255, 0.22);
+}
+
+html[data-theme="dark"] .btn--secondary:hover,
+html[data-theme="dark"] .btn--secondary:focus-visible {
+  background: linear-gradient(160deg, rgba(40, 50, 100, 0.95), rgba(18, 24, 56, 0.98));
+  border-color: rgba(255, 140, 60, 0.4);
+  color: #fff;
+  filter: none;
+}
+
+html[data-theme="dark"] .btn--on-dark {
+  background: linear-gradient(160deg, #ffffff, #e8edff);
+  color: #0c0d42;
+  box-shadow: 0 0 24px -8px rgba(255, 255, 255, 0.35);
+}
+
+html[data-theme="dark"] .btn--ghost:hover,
+html[data-theme="dark"] .btn--ghost:focus-visible {
+  color: #9ec0ff;
+}
+
+/* Prefs on site */
+html[data-theme="dark"] .prefs-controls--site .prefs-btn {
+  background: linear-gradient(160deg, rgba(30, 38, 78, 0.88), rgba(14, 18, 42, 0.92));
+  border-color: rgba(140, 160, 255, 0.2);
+  color: #f4f6ff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+}
+
+html[data-theme="dark"] .prefs-controls--site .prefs-btn:hover {
+  border-color: rgba(255, 140, 60, 0.45);
+  box-shadow: 0 0 18px -6px rgba(255, 102, 0, 0.5);
+}
+
+/* Who facts */
+html[data-theme="dark"] .fact-item {
+  border-color: rgba(140, 165, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 40%),
+    linear-gradient(160deg, rgba(18, 24, 56, 0.78), rgba(10, 14, 34, 0.85));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  backdrop-filter: blur(12px);
+}
+
+html[data-theme="dark"] .fact-item:hover {
+  border-color: rgba(255, 140, 60, 0.28);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 0 28px -12px rgba(255, 102, 0, 0.4);
+}
+
+html[data-theme="dark"] .fact-icon {
+  background: linear-gradient(145deg, rgba(90, 140, 255, 0.22), rgba(40, 60, 140, 0.3));
+  color: #9eb4ff;
+  box-shadow: 0 0 16px -6px rgba(90, 140, 255, 0.5);
+}
+
+html[data-theme="dark"] .fact-item__value {
+  background: linear-gradient(120deg, #fff, #b8c6ff 60%, #ffb27a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Contact cards */
+html[data-theme="dark"] .contact-card {
+  border-color: rgba(140, 165, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 40%),
+    linear-gradient(160deg, rgba(18, 24, 56, 0.92), rgba(10, 14, 34, 0.96));
+  color: #f2f5ff;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+html[data-theme="dark"] .contact-card:hover {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 22px 40px -24px rgba(0, 0, 0, 0.85),
+    0 0 30px -12px rgba(255, 102, 0, 0.35);
+}
+
+html[data-theme="dark"] .contact-card--whatsapp .contact-card__icon {
+  background: linear-gradient(145deg, rgba(37, 211, 102, 0.22), rgba(10, 60, 40, 0.4));
+  color: #6dffb0;
+  box-shadow: 0 0 16px -6px rgba(37, 211, 102, 0.45);
+}
+
+html[data-theme="dark"] .contact-card--phone .contact-card__icon {
+  background: linear-gradient(145deg, rgba(90, 140, 255, 0.22), rgba(30, 45, 110, 0.4));
+  color: #9eb4ff;
+  box-shadow: 0 0 16px -6px rgba(90, 140, 255, 0.5);
+}
+
+html[data-theme="dark"] .contact-card--email .contact-card__icon {
+  background: linear-gradient(145deg, rgba(255, 120, 40, 0.22), rgba(90, 40, 15, 0.4));
+  color: #ffb27a;
+  box-shadow: 0 0 16px -6px rgba(255, 102, 0, 0.5);
+}
+
+/* Coverage */
+html[data-theme="dark"] .coverage-map {
+  border-color: rgba(140, 165, 255, 0.16);
+  background:
+    radial-gradient(ellipse at 35% 40%, rgba(90, 140, 255, 0.22), transparent 58%),
+    radial-gradient(ellipse at 80% 80%, rgba(255, 102, 0, 0.1), transparent 50%),
+    rgba(10, 14, 34, 0.55);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 20px 40px -28px rgba(0, 0, 0, 0.75);
+}
+
+html[data-theme="dark"] .coverage-flights__path {
+  filter: drop-shadow(0 0 4px rgba(255, 122, 46, 0.55));
+}
+
+html[data-theme="dark"] .coverage-card {
+  border-color: rgba(140, 165, 255, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 45%),
+    linear-gradient(160deg, rgba(18, 28, 64, 0.75), rgba(8, 12, 30, 0.85));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 16px 32px -24px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+}
+
+html[data-theme="dark"] .coverage-card:hover {
+  border-color: rgba(255, 140, 60, 0.35);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 20px 40px -20px rgba(255, 102, 0, 0.4),
+    0 0 28px -10px rgba(90, 140, 255, 0.35);
+}
+
+/* Product cards — luminous shell */
+html[data-theme="dark"] .product-card__shell {
+  box-shadow:
+    0 18px 40px -18px color-mix(in srgb, var(--pack-deep) 75%, transparent),
+    0 0 0 1px color-mix(in srgb, #fff 12%, transparent) inset,
+    0 0 40px -16px color-mix(in srgb, var(--pack-accent) 55%, transparent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-theme="dark"] .product-card:hover .product-card__shell,
+  html[data-theme="dark"] .product-card:focus-visible .product-card__shell {
+    box-shadow:
+      0 30px 56px -16px color-mix(in srgb, var(--pack-deep) 80%, transparent),
+      0 0 0 1px color-mix(in srgb, #fff 18%, transparent) inset,
+      0 0 56px -10px color-mix(in srgb, var(--pack-accent) 70%, transparent);
+  }
+}
+
+html[data-theme="dark"] .product-card:focus-visible .product-card__shell {
+  outline-color: #ffb27a;
+}
+
+/* Product modal */
+html[data-theme="dark"] .product-modal__backdrop {
+  background: rgba(2, 4, 12, 0.78);
+}
+
+html[data-theme="dark"] .product-modal__panel {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 102, 0, 0.12), transparent 42%),
+    radial-gradient(ellipse at 90% 40%, rgba(70, 110, 255, 0.12), transparent 40%),
+    linear-gradient(180deg, #0c1028, #060814 60%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 -28px 70px -24px rgba(0, 0, 0, 0.85),
+    0 0 60px -20px rgba(255, 102, 0, 0.25);
+}
+
+html[data-theme="dark"] .product-modal__close {
+  background: rgba(18, 24, 56, 0.75);
+  box-shadow:
+    inset 0 0 0 1px rgba(160, 180, 255, 0.18),
+    0 0 18px -6px rgba(90, 140, 255, 0.4);
+}
+
+/* Section backgrounds intensify */
+html[data-theme="dark"] .who-bg__blob--a {
+  background: radial-gradient(
+    circle at 40% 40%,
+    rgba(255, 140, 60, 0.28) 0%,
+    transparent 68%
+  );
+  filter: blur(2px);
+}
+
+html[data-theme="dark"] .who-bg__blob--b {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(90, 140, 255, 0.26) 0%,
+    transparent 70%
+  );
+}
+
+html[data-theme="dark"] .who-bg__blob--c {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(120, 70, 255, 0.18) 0%,
+    transparent 72%
+  );
+}
+
+html[data-theme="dark"] .who-bg__grid {
+  background-image: radial-gradient(rgba(140, 165, 255, 0.14) 1px, transparent 1px);
+  opacity: 0.7;
+}
+
+html[data-theme="dark"] .products-bg__beam {
+  opacity: 0.55;
+  filter: saturate(1.25) brightness(1.15);
+}
+
+html[data-theme="dark"] .coverage-bg__radar,
+html[data-theme="dark"] .coverage-bg__ring {
+  opacity: 0.85;
+  filter: drop-shadow(0 0 10px rgba(90, 140, 255, 0.35));
+}
+
+html[data-theme="dark"] .about-bg__glow {
+  opacity: 0.9;
+  filter: blur(1px) saturate(1.2);
+}
+
+html[data-theme="dark"] .contact-bg__gradient {
+  opacity: 0.85;
+  filter: saturate(1.25);
+}
+
+html[data-theme="dark"] .footer-bg__wave {
+  opacity: 0.9;
+  filter: drop-shadow(0 0 18px rgba(90, 140, 255, 0.2));
+}
+
+/* Waves stay visible in dark — fills come from --section-* / --wave-* */
+
+html[data-theme="dark"] .footer-bg__wordmark {
+  opacity: 0.12;
+}
+
+/* Footer brand glow */
+html[data-theme="dark"] .site-header__logo-wrap--on-dark {
+  box-shadow:
+    0 0 0 2px rgba(255, 140, 60, 0.35),
+    0 0 24px -4px rgba(255, 102, 0, 0.55),
+    0 6px 16px -8px rgba(0, 0, 0, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="dark"] body::after {
+    animation: none;
+  }
+}

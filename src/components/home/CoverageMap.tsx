@@ -2,11 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
-import {
-  coverageAreas,
-  governorateNameAr,
-  type CoverageArea,
-} from "@/data/coverage";
+import { governorateNameAr, type CoverageArea } from "@/data/coverage";
+import { usePrefs } from "@/components/providers/PrefsProvider";
+import { pickLocalized } from "@/lib/i18n/dictionaries";
 import {
   createSyriaProjection,
   featurePath,
@@ -16,12 +14,6 @@ import "./coverage.css";
 
 const MAP_W = 440;
 const MAP_H = 480;
-
-const statusLabel: Record<CoverageArea["status"], string> = {
-  active: "تغطية يومية",
-  limited: "تغطية محدودة",
-  inquiry: "للاستفسار",
-};
 
 const statusTone: Record<CoverageArea["status"], string> = {
   active: "coverage-status--active",
@@ -42,7 +34,13 @@ type FlightLink = {
   d: string;
 };
 
-export function CoverageMap() {
+export function CoverageMap({ areas: coverageAreas }: { areas: CoverageArea[] }) {
+  const { locale, dict } = usePrefs();
+  const statusLabel: Record<CoverageArea["status"], string> = {
+    active: dict.coverage.statusActive,
+    limited: dict.coverage.statusLimited,
+    inquiry: dict.coverage.statusInquiry,
+  };
   const layoutRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -112,7 +110,7 @@ export function CoverageMap() {
       )
       .map((a) => ({ lon: a.lon, lat: a.lat }));
     return createSyriaProjection(geo, size.w, size.h, 16, extras);
-  }, [geo, size.w, size.h]);
+  }, [geo, size.w, size.h, coverageAreas]);
 
   const outlineD = useMemo(() => {
     if (!geo || !proj) return "";
@@ -144,7 +142,7 @@ export function CoverageMap() {
       }
     }
     return map;
-  }, [proj, geo]);
+  }, [proj, geo, coverageAreas]);
 
   /* Build orderly dashed curves: map pin → legend card */
   const rebuildFlights = useCallback(() => {
@@ -275,7 +273,7 @@ export function CoverageMap() {
           width="100%"
           height="auto"
           role="img"
-          aria-label="خريطة تغطية شلاش في سوريا"
+          aria-label={dict.coverage.mapAria}
         >
           <defs>
             <linearGradient id="syriaFill" x1="15%" y1="5%" x2="85%" y2="95%">
@@ -310,6 +308,7 @@ export function CoverageMap() {
                   f.properties?.shapeNameAr ??
                   governorateNameAr[nameEn] ??
                   nameEn;
+                const hoverName = pickLocalized(locale, nameAr, nameEn);
                 const d = featurePath(proj.path, f);
                 if (!d) return null;
                 return (
@@ -319,8 +318,8 @@ export function CoverageMap() {
                     d={d}
                     fill="url(#syriaFill)"
                     style={{ ["--gov-i" as string]: i }}
-                    onMouseEnter={(e) => onGovEnter(e, nameAr)}
-                    onMouseMove={(e) => onGovEnter(e, nameAr)}
+                    onMouseEnter={(e) => onGovEnter(e, hoverName)}
+                    onMouseMove={(e) => onGovEnter(e, hoverName)}
                     onMouseLeave={() => setHover(null)}
                   />
                 );
@@ -340,7 +339,8 @@ export function CoverageMap() {
                 const ox = area.labelOffset?.x ?? 0;
                 const oy = area.labelOffset?.y ?? -16;
                 /* foreignObject: Safari breaks Arabic joining in SVG <text> */
-                const labelW = Math.max(56, area.nameAr.length * 13 + 12);
+                const areaName = pickLocalized(locale, area.nameAr, area.nameEn);
+                const labelW = Math.max(56, areaName.length * 13 + 12);
                 const labelH = 18;
                 return (
                   <g key={area.id} transform={`translate(${cx} ${cy})`}>
@@ -358,8 +358,12 @@ export function CoverageMap() {
                         width={labelW}
                         height={labelH}
                       >
-                        <div className="coverage-pin__label" dir="rtl" lang="ar">
-                          {area.nameAr}
+                        <div
+                          className="coverage-pin__label"
+                          dir={locale === "ar" ? "rtl" : "ltr"}
+                          lang={locale}
+                        >
+                          {areaName}
                         </div>
                       </foreignObject>
                     </g>
@@ -388,7 +392,11 @@ export function CoverageMap() {
                     width={tipW}
                     height={tipH}
                   >
-                    <div className="coverage-tip__text" dir="rtl" lang="ar">
+                    <div
+                      className="coverage-tip__text"
+                      dir={locale === "ar" ? "rtl" : "ltr"}
+                      lang={locale}
+                    >
                       {hover.name}
                     </div>
                   </foreignObject>
@@ -399,21 +407,27 @@ export function CoverageMap() {
       </div>
 
       <ul className="coverage-legend m-0 list-none p-0">
-        {coverageAreas.map((area) => (
-          <li key={area.id} className="coverage-card" data-coverage-id={area.id}>
-            <div className="coverage-card__top">
-              <h3 className="coverage-card__city">{area.nameAr}</h3>
-              <span className={`coverage-status ${statusTone[area.status]}`}>
-                {statusLabel[area.status]}
-              </span>
-            </div>
-            {area.note ? (
-              <p className="coverage-card__note">{area.note}</p>
-            ) : (
-              <p className="coverage-card__note coverage-card__note--muted">{area.nameEn}</p>
-            )}
-          </li>
-        ))}
+        {coverageAreas.map((area) => {
+          const areaName = pickLocalized(locale, area.nameAr, area.nameEn);
+          const note = pickLocalized(locale, area.note, area.noteEn);
+          return (
+            <li key={area.id} className="coverage-card" data-coverage-id={area.id}>
+              <div className="coverage-card__top">
+                <h3 className="coverage-card__city">{areaName}</h3>
+                <span className={`coverage-status ${statusTone[area.status]}`}>
+                  {statusLabel[area.status]}
+                </span>
+              </div>
+              {note ? (
+                <p className="coverage-card__note">{note}</p>
+              ) : (
+                <p className="coverage-card__note coverage-card__note--muted">
+                  {pickLocalized(locale, area.nameAr, area.nameEn)}
+                </p>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

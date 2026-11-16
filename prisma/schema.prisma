@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  nameAr    String
+  nameEn    String
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Brand {
+  id           String    @id @default(cuid())
+  slug         String    @unique
+  nameAr       String
+  nameEn       String
+  supplierNote String?
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  products     Product[]
+}
+
+model Product {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  nameAr       String
+  nameEn       String
+  descriptionAr String
+  categoryId   String
+  brandId      String
+  weight       String?
+  image        String
+  accent       String?
+  featured     Boolean       @default(false)
+  available    Boolean       @default(true)
+  flavors      String[]      @default([])
+  sortOrder    Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  brand        Brand         @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  units        ProductUnit[]
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([featured, available])
+}
+
+model ProductUnit {
+  id        String  @id @default(cuid())
+  productId String
+  labelAr   String
+  labelEn   String
+  packCount Int     @default(1)
+  amount    Int
+  currency  String  @default("SYP")
+  sortOrder Int     @default(0)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model SiteSettings {
+  id        String   @id @default("default")
+  phone     String
+  email     String
+  address   String
+  hoursAr   String
+  hoursEn   String
+  updatedAt DateTime @updatedAt
+}
+
+model CompanyContent {
+  id          String   @id @default("default")
+  nameAr      String
+  nameEn      String
+  legalName   String
+  roleAr      String
+  roleEn      String
+  intro       String
+  aboutLead   String
+  aboutBody   String[] @default([])
+  serves      String[] @default([])
+  /// JSON array of { id, icon, label, value }
+  factsJson   Json
+  foundedYear Int?
+  clientCount Int?
+  partnerNames String[] @default([])
+  updatedAt   DateTime @updatedAt
+}
+
+model CoverageArea {
+  id          String  @id @default(cuid())
+  nameAr      String
+  nameEn      String
+  status      String
+  note        String?
+  lat         Float?
+  lon         Float?
+  labelOffsetX Float?
+  labelOffsetY Float?
+  sortOrder   Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model NavItem {
+  id        String   @id @default(cuid())
+  href      String
+  label     String
+  sortOrder Int      @default(0)
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContactChannel {
+  id        String   @id @default(cuid())
+  type      String
+  labelAr   String
+  value     String
+  href      String
+  enabled   Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  labelAr   String
+  labelEn   String
+  href      String
+  enabled   Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CoverageSettings {
+  id           String   @id @default("default")
+  inquiryCopy  String
+  updatedAt    DateTime @updatedAt
+}

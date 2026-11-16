@@ -8,12 +8,15 @@ import {
   formatMoney,
   getBrand,
   getCategory,
+  localizeWeight,
   productFlavors,
   type FlavorId,
   type Product,
 } from "@/data/catalog";
 import { FlavorBackdrop } from "@/components/catalog/FlavorBackdrop";
+import { usePrefs } from "@/components/providers/PrefsProvider";
 import { cn } from "@/lib/cn";
+import { pickLocalized } from "@/lib/i18n/dictionaries";
 import { lockPageScroll, unlockPageScroll } from "@/lib/lenis-control";
 import "./product-detail-modal.css";
 
@@ -32,6 +35,7 @@ export function ProductDetailModal({
   product: Product;
   onClose: () => void;
 }) {
+  const { locale, dict } = usePrefs();
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
@@ -40,6 +44,17 @@ export function ProductDetailModal({
   const openTweenRef = useRef<gsap.core.Timeline | null>(null);
   const category = getCategory(product.categoryId);
   const brand = getBrand(product.brandId);
+  const title = pickLocalized(locale, product.nameAr, product.nameEn);
+  const description = pickLocalized(
+    locale,
+    product.descriptionAr,
+    product.descriptionEn,
+  );
+  const weightLabel = localizeWeight(product.weight, locale);
+  const moneyLabels = {
+    syp: dict.catalog.currencySyp,
+    usd: dict.catalog.currencyUsd,
+  };
 
   const flavors = useMemo(
     () => productFlavors.filter((f) => product.flavors?.includes(f.id)),
@@ -248,11 +263,17 @@ export function ProductDetailModal({
   if (typeof document === "undefined") return null;
 
   const activeFlavor = flavors.find((f) => f.id === flavor);
+  const categoryName = category
+    ? pickLocalized(locale, category.nameAr, category.nameEn)
+    : "";
+  const brandName = brand
+    ? pickLocalized(locale, brand.nameAr, brand.nameEn)
+    : "";
   const metaBits = [
-    product.weight,
-    category?.nameAr,
-    brand?.nameAr,
-    product.available ? "متوفر" : "غير متوفر",
+    weightLabel,
+    categoryName,
+    brandName,
+    product.available ? dict.catalog.available : dict.catalog.unavailable,
   ].filter(Boolean);
 
   return createPortal(
@@ -261,7 +282,7 @@ export function ProductDetailModal({
         ref={backdropRef}
         type="button"
         className="product-modal__backdrop"
-        aria-label="إغلاق"
+        aria-label={dict.catalog.close}
         onClick={requestClose}
       />
       <div
@@ -279,7 +300,7 @@ export function ProductDetailModal({
           type="button"
           className="product-modal__close"
           onClick={requestClose}
-          aria-label="إغلاق"
+          aria-label={dict.catalog.close}
         >
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path
@@ -299,7 +320,7 @@ export function ProductDetailModal({
             {flavors.length > 0 && <FlavorBackdrop flavor={flavor} />}
             <Image
               src={product.image}
-              alt={product.nameAr}
+              alt={title}
               fill
               className="product-modal__img"
               sizes="(max-width: 820px) 100vw, 460px"
@@ -307,72 +328,97 @@ export function ProductDetailModal({
             />
 
             {flavors.length > 0 && (
-              <div className="product-modal__swatches" role="tablist" aria-label="اختيار النكهة">
-                {flavors.map((item) => (
-                  <button
-                    key={`swatch-${item.id}`}
-                    type="button"
-                    role="tab"
-                    aria-selected={flavor === item.id}
-                    aria-label={item.nameAr}
-                    title={item.nameAr}
-                    className={cn(
-                      "product-modal__swatch",
-                      `product-modal__swatch--${item.id}`,
-                      flavor === item.id && "is-active",
-                    )}
-                    onClick={() => setFlavor(item.id)}
-                  />
-                ))}
+              <div
+                className="product-modal__swatches"
+                role="tablist"
+                aria-label={dict.catalog.pickFlavor}
+              >
+                {flavors.map((item) => {
+                  const flavorName = pickLocalized(locale, item.nameAr, item.nameEn);
+                  return (
+                    <button
+                      key={`swatch-${item.id}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={flavor === item.id}
+                      aria-label={flavorName}
+                      title={flavorName}
+                      className={cn(
+                        "product-modal__swatch",
+                        `product-modal__swatch--${item.id}`,
+                        flavor === item.id && "is-active",
+                      )}
+                      onClick={() => setFlavor(item.id)}
+                    />
+                  );
+                })}
               </div>
             )}
           </div>
 
           <div className="product-modal__content product-modal__dock">
             <div className="product-modal__identity product-modal__dock-item">
-              <p className="product-modal__eyebrow" dir="ltr">
-                {product.nameEn}
-              </p>
+              {locale === "ar" ? (
+                <p className="product-modal__eyebrow" dir="ltr">
+                  {product.nameEn}
+                </p>
+              ) : null}
               <h2 id={`product-title-${product.id}`} className="product-modal__title">
-                {product.nameAr}
+                {title}
               </h2>
               <p className="product-modal__meta-line">{metaBits.join(" · ")}</p>
             </div>
 
-            <p className="product-modal__desc product-modal__dock-item">{product.descriptionAr}</p>
+            <p className="product-modal__desc product-modal__dock-item">
+              {description}
+            </p>
 
             <ul className="product-modal__facts" aria-hidden="true">
-              {product.weight && <li>{product.weight}</li>}
-              {category && <li>{category.nameAr}</li>}
-              {brand && <li>{brand.nameAr}</li>}
-              <li>{product.available ? "متوفر للتوزيع" : "غير متوفر حالياً"}</li>
+              {weightLabel ? <li>{weightLabel}</li> : null}
+              {categoryName ? <li>{categoryName}</li> : null}
+              {brandName ? <li>{brandName}</li> : null}
+              <li>
+                {product.available
+                  ? dict.catalog.availableLong
+                  : dict.catalog.unavailableLong}
+              </li>
             </ul>
 
             {flavors.length > 0 && (
               <div className="product-modal__flavors">
-                <p className="product-modal__units-title">النكهات</p>
-                <div className="product-modal__flavor-list" role="tablist" aria-label="اختيار النكهة">
-                  {flavors.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={flavor === item.id}
-                      className={cn(
-                        "product-modal__flavor",
-                        `product-modal__flavor--${item.id}`,
-                        flavor === item.id && "is-active",
-                      )}
-                      onClick={() => setFlavor(item.id)}
-                    >
-                      <span className="product-modal__flavor-dot" aria-hidden />
-                      {item.nameAr}
-                    </button>
-                  ))}
+                <p className="product-modal__units-title">{dict.catalog.flavors}</p>
+                <div
+                  className="product-modal__flavor-list"
+                  role="tablist"
+                  aria-label={dict.catalog.pickFlavor}
+                >
+                  {flavors.map((item) => {
+                    const flavorName = pickLocalized(locale, item.nameAr, item.nameEn);
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={flavor === item.id}
+                        className={cn(
+                          "product-modal__flavor",
+                          `product-modal__flavor--${item.id}`,
+                          flavor === item.id && "is-active",
+                        )}
+                        onClick={() => setFlavor(item.id)}
+                      >
+                        <span className="product-modal__flavor-dot" aria-hidden />
+                        {flavorName}
+                      </button>
+                    );
+                  })}
                 </div>
                 {activeFlavor && (
                   <p className="product-modal__flavor-note">
-                    خلفية حقيقية لنكهة {activeFlavor.nameAr}
+                    {dict.catalog.flavorNote.replace(
+                      "{name}",
+                      pickLocalized(locale, activeFlavor.nameAr, activeFlavor.nameEn),
+                    )}
                   </p>
                 )}
               </div>
@@ -380,8 +426,12 @@ export function ProductDetailModal({
 
             {primaryUnit && (
               <div className="product-modal__price-hero product-modal__dock-item">
-                <span className="product-modal__price-label">{primaryUnit.labelAr}</span>
-                <strong className="product-modal__price-value">{formatMoney(primaryUnit.price)}</strong>
+                <span className="product-modal__price-label">
+                  {pickLocalized(locale, primaryUnit.labelAr, primaryUnit.labelEn)}
+                </span>
+                <strong className="product-modal__price-value">
+                  {formatMoney(primaryUnit.price, moneyLabels)}
+                </strong>
               </div>
             )}
 
@@ -391,7 +441,7 @@ export function ProductDetailModal({
                 product.units.length < 2 && "product-modal__units-block--solo",
               )}
             >
-              <p className="product-modal__units-title">وحدات البيع</p>
+              <p className="product-modal__units-title">{dict.catalog.sellUnits}</p>
               <ul className="product-modal__units">
                 {product.units.map((unit, index) => (
                   <li
@@ -401,8 +451,8 @@ export function ProductDetailModal({
                       index === 0 && "product-modal__unit--primary",
                     )}
                   >
-                    <span>{unit.labelAr}</span>
-                    <strong>{formatMoney(unit.price)}</strong>
+                    <span>{pickLocalized(locale, unit.labelAr, unit.labelEn)}</span>
+                    <strong>{formatMoney(unit.price, moneyLabels)}</strong>
                   </li>
                 ))}
               </ul>
@@ -419,7 +469,7 @@ export function ProductDetailModal({
                 }, 420);
               }}
             >
-              استفسر عن هذا الصنف
+              {dict.catalog.inquire}
             </a>
           </div>
         </div>

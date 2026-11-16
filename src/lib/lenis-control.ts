@@ -8,6 +8,21 @@ export function registerLenis(instance: Lenis | null) {
   if (instance && lockCount > 0) instance.stop();
 }
 
+export function getLenis() {
+  return lenis;
+}
+
+/** Scroll the page — prefers Lenis when active. */
+export function scrollPageTo(y: number, immediate = false) {
+  const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 0);
+  const top = Math.min(Math.max(y, 0), max);
+  if (lenis) {
+    lenis.scrollTo(top, { immediate, force: true });
+    return;
+  }
+  window.scrollTo({ top, behavior: immediate ? "auto" : "smooth" });
+}
+
 /** Pause page scroll (Lenis + native). Nestable. */
 export function lockPageScroll() {
   lockCount += 1;

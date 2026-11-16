@@ -1,0 +1,109 @@
+/* Belt-and-suspenders hide while custom rail is mounted */
+html.has-scroll-rail,
+html.has-scroll-rail body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html.has-scroll-rail::-webkit-scrollbar,
+html.has-scroll-rail body::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+.scroll-rail {
+  position: fixed !important;
+  top: 0;
+  bottom: 0;
+  z-index: 70;
+  display: flex;
+  justify-content: center;
+  width: 16px;
+  height: 100vh;
+  height: 100dvh;
+  padding: 12px 0;
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: none;
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+  outline: none;
+}
+
+/* Soft ice track */
+.scroll-rail::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 50%;
+  width: 3px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--navy) 10%, transparent);
+  pointer-events: none;
+}
+
+.scroll-rail__thumb {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 6px;
+  min-height: 52px;
+  border-radius: 999px;
+  background: var(--orange);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ice) 80%, transparent);
+  opacity: 0.55;
+  will-change: transform;
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    background-color 0.25s ease,
+    width 0.2s ease;
+}
+
+.scroll-rail:hover .scroll-rail__thumb,
+html.is-scrolling .scroll-rail__thumb,
+html.is-rail-dragging .scroll-rail__thumb {
+  opacity: 1;
+  width: 8px;
+  background: linear-gradient(
+    180deg,
+    var(--orange) 0%,
+    color-mix(in srgb, var(--orange) 70%, var(--blue)) 100%
+  );
+}
+
+html.is-rail-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+html.is-rail-dragging .scroll-rail {
+  cursor: grabbing;
+}
+
+html[data-theme="dark"] .scroll-rail::before {
+  background: rgba(140, 165, 255, 0.16);
+  box-shadow: 0 0 12px rgba(90, 140, 255, 0.15);
+}
+
+html[data-theme="dark"] .scroll-rail__thumb {
+  box-shadow:
+    0 0 0 2px rgba(8, 10, 28, 0.85),
+    0 0 14px rgba(255, 102, 0, 0.55);
+}
+
+html[data-theme="dark"].is-scrolling .scroll-rail__thumb,
+html[data-theme="dark"].is-rail-dragging .scroll-rail__thumb {
+  box-shadow:
+    0 0 0 2px rgba(8, 10, 28, 0.85),
+    0 0 20px rgba(255, 122, 46, 0.75);
+}
+
+@media (max-width: 819px), (pointer: coarse) {
+  .scroll-rail {
+    display: none;
+  }
+}

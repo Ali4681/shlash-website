@@ -1,11 +1,16 @@
 @import "tailwindcss";
 
-:root {
+:root,
+html[data-theme="light"] {
   --blue: #0443b2;
   --orange: #ff6600;
   --navy: #0c0d42;
   --ice: #e8f0fc;
   --electric: #0d75ff;
+  --surface: #ffffff;
+  --surface-muted: #f3f6fb;
+  --text: #0c0d42;
+  --text-muted: color-mix(in srgb, #0c0d42 58%, transparent);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* Warm section-background palette */
@@ -13,6 +18,42 @@
   --choco: #0c0d42;
   --caramel: #c4783a;
   --burnt-red: #a33d32;
+
+  /* Section surfaces for wave seams (never remapped to text colors) */
+  --section-white: #ffffff;
+  --section-ice: #e8f0fc;
+  --section-navy: #0c0d42;
+  --section-blue: #0443b2;
+  --section-cream: #f4ebe0;
+  --section-choco: #0c0d42;
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  --blue: #6b96ff;
+  --orange: #ff7a2e;
+  --navy: #f2f5ff;
+  --ice: #07091a;
+  --electric: #7ab0ff;
+  --surface: #101632;
+  --surface-muted: #0b1026;
+  --text: #f2f5ff;
+  --text-muted: color-mix(in srgb, #d7deff 58%, transparent);
+  --cream: #0e1430;
+  --choco: #f2f5ff;
+  --caramel: #ffb27a;
+  --burnt-red: #ff8f82;
+  --glow-orange: rgba(255, 102, 0, 0.42);
+  --glow-blue: rgba(90, 140, 255, 0.38);
+
+  /* Match .bg-ice / .bg-white / .bg-navy dark bases */
+  --section-white: #101632;
+  --section-ice: #07091a;
+  --section-navy: #050712;
+  --section-blue: #0a1840;
+  --section-cream: #0e1430;
+  --section-choco: #050712;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -27,6 +68,18 @@
 
 html {
   scroll-behavior: auto;
+  /* Hide native Windows chrome — ScrollRail replaces it on desktop */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Chromium / Safari — hide root scrollbars only (not nested panels) */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+  background: transparent !important;
 }
 
 html.scroll-locked,
@@ -47,11 +100,153 @@ html.lenis body {
 
 body {
   margin: 0;
-  min-height: 100vh;
-  background: #e8f0fc;
-  color: #0c0d42;
+  min-height: 100%;
+  min-height: 100dvh;
+  background: var(--ice);
+  color: var(--text);
   font-family: var(--font-plex), var(--font-outfit), sans-serif;
-  overflow-x: hidden;
+  /* clip avoids a second scroll container (overflow-x: hidden caused dual bars) */
+  overflow-x: clip;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  transition: background-color 0.28s var(--ease-out), color 0.28s var(--ease-out);
+}
+
+.site-shell {
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+.site-footer {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  /* Clip decorative wordmark so it cannot inflate page height */
+  contain: paint;
+}
+
+.site-footer .section-wave {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+html[data-theme="dark"] body {
+  background:
+    radial-gradient(980px 560px at 88% -12%, rgba(255, 102, 0, 0.16), transparent 58%),
+    radial-gradient(820px 520px at -10% 18%, rgba(55, 95, 255, 0.18), transparent 52%),
+    radial-gradient(640px 420px at 50% 110%, rgba(120, 60, 255, 0.1), transparent 55%),
+    linear-gradient(165deg, #05060f 0%, #07091a 48%, #04050e 100%);
+  background-attachment: fixed;
+}
+
+html[data-theme="dark"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.45;
+  background-image:
+    linear-gradient(rgba(120, 150, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 150, 255, 0.035) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 18%, transparent 78%);
+}
+
+html[data-theme="dark"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 22% 24%, rgba(255, 102, 0, 0.08), transparent 28%),
+    radial-gradient(circle at 78% 68%, rgba(70, 110, 255, 0.1), transparent 32%);
+  animation: site-aurora 20s ease-in-out infinite alternate;
+  /* Keep aurora from expanding document scroll height */
+  will-change: opacity;
+}
+
+@keyframes site-aurora {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+
+/* Stack content above aurora — never override position (breaks fixed chrome) */
+html[data-theme="dark"] .site-shell {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-theme="dark"] .bg-ice {
+  background:
+    radial-gradient(700px 380px at 10% 0%, rgba(70, 110, 255, 0.12), transparent 55%),
+    radial-gradient(520px 320px at 90% 100%, rgba(255, 102, 0, 0.08), transparent 50%),
+    var(--section-ice) !important;
+}
+
+html[data-theme="dark"] .bg-white {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 40%),
+    var(--section-white) !important;
+}
+
+html[data-theme="dark"] .bg-navy {
+  background:
+    radial-gradient(800px 420px at 80% 0%, rgba(255, 102, 0, 0.14), transparent 50%),
+    radial-gradient(700px 400px at 0% 100%, rgba(70, 110, 255, 0.16), transparent 52%),
+    var(--section-navy) !important;
+}
+
+html[data-theme="dark"] .text-navy {
+  color: #f2f5ff !important;
+}
+
+html[data-theme="dark"] .text-navy\/55,
+html[data-theme="dark"] .text-navy\/70,
+html[data-theme="dark"] .text-navy\/50,
+html[data-theme="dark"] .text-navy\/40 {
+  color: color-mix(in srgb, #d7deff 58%, transparent) !important;
+}
+
+html[data-theme="dark"] .section-title {
+  background: linear-gradient(120deg, #ffffff 15%, #c5d0ff 55%, #ffb27a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+html[data-theme="dark"] .section-title--on-dark {
+  background: linear-gradient(120deg, #ffffff, #ffe0c2 55%, #9eb4ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+html[data-theme="dark"] .section-lead {
+  color: color-mix(in srgb, #d7deff 68%, transparent);
+}
+
+html[data-theme="dark"] .contact-cta__eyebrow {
+  color: #8eb0ff;
+  text-shadow: 0 0 18px rgba(90, 140, 255, 0.4);
+}
+
+html[data-theme="dark"] .field {
+  color: #f2f5ff;
+  border-bottom-color: rgba(160, 180, 255, 0.22);
+}
+
+html[data-theme="dark"] .field:focus {
+  border-bottom-color: #ff7a2e;
+  box-shadow: 0 1px 0 0 rgba(255, 122, 46, 0.35);
+}
+
+html[data-theme="dark"] ::selection {
+  background: rgba(255, 122, 46, 0.38);
 }
 
 a {

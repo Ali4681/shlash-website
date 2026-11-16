@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { type Product } from "@/data/catalog";
+import { localizeWeight, type Product } from "@/data/catalog";
 import { cn } from "@/lib/cn";
+import { pickLocalized } from "@/lib/i18n/dictionaries";
+import { usePrefs } from "@/components/providers/PrefsProvider";
 import { ProductDetailModal } from "@/components/catalog/ProductDetailModal";
 import "./product-card.css";
 
@@ -32,11 +34,16 @@ function formatAmount(amount: number): string {
 }
 
 export function ProductCard({ product, promo = false, index = 0 }: Props) {
+  const { locale, dict } = usePrefs();
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [inView, setInView] = useState(false);
   const rootRef = useRef<HTMLButtonElement>(null);
   const unit = product.units[0];
+  const title = pickLocalized(locale, product.nameAr, product.nameEn);
+  const unitLabel = unit
+    ? pickLocalized(locale, unit.labelAr, unit.labelEn)
+    : "";
 
   const accent = promo ? "#ff6600" : product.accent || "#0443b2";
   const tone = isLightAccent(accent) ? "light" : "dark";
@@ -77,7 +84,8 @@ export function ProductCard({ product, promo = false, index = 0 }: Props) {
     e.currentTarget.style.setProperty("--my", "0.5");
   }, []);
 
-  const currency = unit?.price.currency === "SYP" ? "ل.س" : "$";
+  const currency =
+    unit?.price.currency === "SYP" ? dict.catalog.currencySyp : dict.catalog.currencyUsd;
 
   return (
     <>
@@ -103,7 +111,7 @@ export function ProductCard({ product, promo = false, index = 0 }: Props) {
         onPointerLeave={onPointerLeave}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label={`تفاصيل ${product.nameAr}`}
+        aria-label={title}
       >
         <div className="product-card__shell">
           {/* Ambient layers */}
@@ -112,7 +120,7 @@ export function ProductCard({ product, promo = false, index = 0 }: Props) {
 
           {promo && (
             <span className="product-card__ribbon" aria-hidden="false">
-              مميّز
+              {dict.catalog.featured}
             </span>
           )}
 
@@ -135,10 +143,12 @@ export function ProductCard({ product, promo = false, index = 0 }: Props) {
           {/* Bottom info sheet */}
           <div className="product-card__sheet">
             {product.weight && (
-              <span className="product-card__chip">{product.weight}</span>
+              <span className="product-card__chip">
+                {localizeWeight(product.weight, locale)}
+              </span>
             )}
 
-            <h3 className="product-card__title">{product.nameAr}</h3>
+            <h3 className="product-card__title">{title}</h3>
 
             {unit && (
               <div className="product-card__row">
@@ -148,7 +158,7 @@ export function ProductCard({ product, promo = false, index = 0 }: Props) {
                   </strong>
                   <span className="product-card__meta-price">
                     {currency}
-                    <span className="product-card__unit"> / {unit.labelAr}</span>
+                    <span className="product-card__unit"> / {unitLabel}</span>
                   </span>
                 </div>
 
@@ -165,7 +175,7 @@ export function ProductCard({ product, promo = false, index = 0 }: Props) {
               </div>
             )}
 
-            <p className="product-card__hint">اضغط لعرض التفاصيل</p>
+            <p className="product-card__hint">{dict.catalog.tapHint}</p>
           </div>
         </div>
       </button>

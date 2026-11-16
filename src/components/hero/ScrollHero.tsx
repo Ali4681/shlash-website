@@ -3,12 +3,23 @@
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { site } from "@/data/site";
 import { marhey } from "@/lib/fonts";
 import { cn } from "@/lib/cn";
+import { pickLocalized } from "@/lib/i18n/dictionaries";
+import { usePrefs } from "@/components/providers/PrefsProvider";
 import "./scroll-hero.css";
 
-export function ScrollHero() {
+type SiteInfo = {
+  nameAr: string;
+  nameEn: string;
+  roleAr: string;
+  roleEn: string;
+};
+
+export function ScrollHero({ site }: { site: SiteInfo }) {
+  const { locale, dict } = usePrefs();
+  const brandName = pickLocalized(locale, site.nameAr, site.nameEn);
+  const brandRole = pickLocalized(locale, site.roleAr, site.roleEn);
   const rootRef = useRef<HTMLElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const brandRef = useRef<HTMLDivElement>(null);
@@ -41,12 +52,12 @@ export function ScrollHero() {
   }, []);
 
   return (
-    <section ref={rootRef} id="story" className="scroll-hero" aria-label="هوية شلاش">
+    <section ref={rootRef} id="story" className="scroll-hero" aria-label={dict.hero.aria}>
       <div className="scroll-hero__sticky">
         <div ref={frameRef} className="scroll-hero__frame absolute inset-0">
           <Image
             src="/media/hero-still-hq.jpg"
-            alt="شلاش — توزيع منتجات مع الأسطول والشخصية"
+            alt={dict.hero.alt}
             fill
             priority
             quality={100}
@@ -60,32 +71,37 @@ export function ScrollHero() {
         <div className="scroll-hero__glow" aria-hidden />
 
         <div ref={asideRef} className="scroll-hero__aside">
-          <p className="scroll-hero__aside-label" dir="ltr">
-            {site.roleEn}
+          <p
+            className="scroll-hero__aside-label"
+            dir={locale === "en" ? "ltr" : undefined}
+          >
+            {brandRole}
           </p>
-          <p className="scroll-hero__aside-line">من المستودع إلى المحل — توزيع يومي بثقة.</p>
+          <p className="scroll-hero__aside-line">{dict.hero.line}</p>
           <span className="scroll-hero__aside-rule" aria-hidden />
           <div className="scroll-hero__actions">
             <a href="#products" className="scroll-hero__btn scroll-hero__btn--primary">
-              اكتشف المنتجات
+              {dict.hero.discover}
             </a>
             <a href="#contact" className="scroll-hero__btn scroll-hero__btn--ghost">
-              تواصل معنا
+              {dict.hero.contact}
             </a>
           </div>
         </div>
 
         <div ref={brandRef} className="scroll-hero__brand">
-          <p className="scroll-hero__kicker">{site.roleAr}</p>
+          <p className="scroll-hero__kicker">{brandRole}</p>
           <h1 className={cn(marhey.className, "scroll-hero__wordmark")}>
             <span className="scroll-hero__wordmark-stroke" aria-hidden>
-              {site.nameAr}
+              {brandName}
             </span>
-            <span className="scroll-hero__wordmark-fill">{site.nameAr}</span>
+            <span className="scroll-hero__wordmark-fill">{brandName}</span>
           </h1>
-          <p className="scroll-hero__en" dir="ltr">
-            {site.nameEn}
-          </p>
+          {locale === "ar" ? (
+            <p className="scroll-hero__en" dir="ltr">
+              {site.nameEn}
+            </p>
+          ) : null}
         </div>
       </div>
     </section>

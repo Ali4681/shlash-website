@@ -30,6 +30,7 @@ export type Product = {
   nameAr: string;
   nameEn: string;
   descriptionAr: string;
+  descriptionEn?: string;
   categoryId: string;
   brandId: string;
   weight?: string;
@@ -86,6 +87,8 @@ export const products: Product[] = [
     nameEn: "Classic Butter Biscuit",
     descriptionAr:
       "بسكوت زبدة مقرمش بطعم تقليدي، مناسب للبيع اليومي على رفوف المحلات.",
+    descriptionEn:
+      "Crispy classic butter biscuit — built for everyday shelf sales.",
     categoryId: "cat-biscuit",
     brandId: "brand-source-1",
     weight: "200 غ",
@@ -105,6 +108,7 @@ export const products: Product[] = [
     nameAr: "بسكوت ساندويش شوكولا",
     nameEn: "Chocolate Sandwich",
     descriptionAr: "ساندويش محشو بكريمة شوكولا — صنف مطلوب في نقاط البيع.",
+    descriptionEn: "Chocolate cream sandwich — a high-demand SKU at points of sale.",
     categoryId: "cat-biscuit",
     brandId: "brand-source-1",
     weight: "36 غ × 12",
@@ -124,6 +128,7 @@ export const products: Product[] = [
     nameAr: "بسكوت شاي دايجستف",
     nameEn: "Tea Time Digestive",
     descriptionAr: "بسكوت دايجستف خفيف مع الشاي — عبوة واضحة للعرض على الرف.",
+    descriptionEn: "Light digestive biscuit for tea time — clear pack for shelf display.",
     categoryId: "cat-biscuit",
     brandId: "brand-source-1",
     weight: "400 غ",
@@ -143,6 +148,7 @@ export const products: Product[] = [
     nameAr: "ويفر فانيلا",
     nameEn: "Vanilla Wafer",
     descriptionAr: "ويفر طبقات بكريمة فانيلا — صنف سريع الحركة للتجزئة.",
+    descriptionEn: "Layered vanilla cream wafer — a fast mover in retail.",
     categoryId: "cat-biscuit",
     brandId: "brand-source-1",
     weight: "80 غ",
@@ -162,6 +168,7 @@ export const products: Product[] = [
     nameAr: "بسكوت حلقات للأطفال",
     nameEn: "Kids Fun Rings",
     descriptionAr: "حلقات ملونة بطعم لطيف — مناسب لعروض الأطفال في المحل.",
+    descriptionEn: "Colorful mild-flavor rings — great for kids’ displays in-store.",
     categoryId: "cat-biscuit",
     brandId: "brand-source-1",
     weight: "150 غ",
@@ -181,6 +188,7 @@ export const products: Product[] = [
     nameAr: "كراكر مملح",
     nameEn: "Salted Cracker",
     descriptionAr: "كراكر مملح خفيف للوجبات السريعة والضيافة.",
+    descriptionEn: "Light salted cracker for snacks and hospitality.",
     categoryId: "cat-biscuit",
     brandId: "brand-source-1",
     weight: "250 غ",
@@ -212,9 +220,21 @@ export function getFeaturedProducts() {
 }
 
 /** Deterministic money format — Western digits (avoids Intl SSR/client mismatches). */
-export function formatMoney(money: Money) {
+export function formatMoney(
+  money: Money,
+  labels?: { syp?: string; usd?: string },
+) {
   const formatted = Math.round(money.amount)
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return money.currency === "SYP" ? `${formatted} ل.س` : `${formatted} $`;
+  const syp = labels?.syp ?? "ل.س";
+  const usd = labels?.usd ?? "$";
+  return money.currency === "SYP" ? `${formatted} ${syp}` : `${formatted} ${usd}`;
+}
+
+/** Localize common Arabic weight units in catalog strings. */
+export function localizeWeight(weight: string | undefined, locale: "ar" | "en") {
+  if (!weight) return "";
+  if (locale !== "en") return weight;
+  return weight.replace(/\s*غ\b/g, " g").replace(/×/g, "×");
 }

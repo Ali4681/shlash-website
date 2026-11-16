@@ -6,6 +6,7 @@ export type CoverageArea = {
   nameEn: string;
   status: CoverageStatus;
   note?: string;
+  noteEn?: string;
   /** WGS84 pin — omit when the area is drawn as a map polygon instead */
   lat?: number;
   lon?: number;
@@ -21,6 +22,7 @@ export const coverageAreas: CoverageArea[] = [
     nameEn: "Damascus",
     status: "active",
     note: "تغطية يومية لنقاط البيع",
+    noteEn: "Daily coverage for points of sale",
     lat: 33.5138,
     lon: 36.2765,
     labelOffset: { x: -4, y: 18 },
@@ -40,6 +42,7 @@ export const coverageAreas: CoverageArea[] = [
     nameEn: "Aleppo",
     status: "limited",
     note: "تغطية محدودة — تواصل للتأكيد",
+    noteEn: "Limited coverage — contact to confirm",
     lat: 36.2021,
     lon: 37.1343,
     labelOffset: { x: 0, y: -16 },
@@ -57,6 +60,9 @@ export const coverageAreas: CoverageArea[] = [
 
 export const coverageInquiryCopy =
   "تواصل معنا للاستفسار عن التوزيع بمنطقتك";
+
+export const coverageInquiryCopyEn =
+  "Contact us to ask about distribution in your area";
 
 /** geoBoundaries shapeName → Arabic governorate name */
 export const governorateNameAr: Record<string, string> = {

@@ -461,14 +461,18 @@
   }
 }
 
-/* —— wave dividers —— */
+/* —— wave dividers (theme-aware via --wave-from / --wave-to) —— */
 .section-wave {
+  --wave-from: var(--section-white);
+  --wave-to: var(--section-ice);
   position: relative;
   z-index: 2;
   width: 100%;
   overflow: hidden;
   line-height: 0;
   pointer-events: none;
+  background: var(--wave-to);
+  color: var(--wave-from);
 }
 
 .section-wave__svg {
@@ -478,6 +482,28 @@
   height: 100%;
   animation: bg-wave-x 14s ease-in-out infinite alternate;
   will-change: transform;
+}
+
+.section-wave__fill {
+  fill: var(--wave-from);
+}
+
+.section-wave__edge {
+  stroke: color-mix(in srgb, var(--wave-from) 55%, var(--wave-to));
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+
+html[data-theme="dark"] .section-wave__edge {
+  stroke: color-mix(in srgb, var(--orange) 45%, var(--blue));
+  stroke-width: 1.5;
+  opacity: 0.42;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--orange) 35%, transparent));
+}
+
+html[data-theme="dark"] .section-wave {
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--blue) 12%, transparent);
 }
 
 .section-wave--flip {

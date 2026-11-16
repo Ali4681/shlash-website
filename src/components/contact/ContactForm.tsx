@@ -6,14 +6,16 @@ import {
   type ContactPurposeId,
 } from "@/data/contact";
 import { Button } from "@/components/ui/Button";
+import { usePrefs } from "@/components/providers/PrefsProvider";
 
 export function ContactForm() {
+  const { dict } = usePrefs();
   const [purpose, setPurpose] = useState<ContactPurposeId>("general");
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const needsShop = purpose === "visit";
   const title = useMemo(
-    () => contactPurposes.find((p) => p.id === purpose)?.labelAr,
-    [purpose],
+    () => dict.contactForm.purposes[purpose] ?? purpose,
+    [dict.contactForm.purposes, purpose],
   );
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -33,7 +35,7 @@ export function ContactForm() {
     <form onSubmit={onSubmit} className="grid gap-5">
       <div>
         <p className="font-en text-xs tracking-[0.16em] uppercase text-[var(--muted)]">
-          رسالة
+          {dict.contactForm.messageEyebrow}
         </p>
         <h3 className="mt-2 text-2xl font-bold text-[var(--navy)]">{title}</h3>
       </div>
@@ -48,43 +50,45 @@ export function ContactForm() {
               checked={purpose === p.id}
               onChange={() => setPurpose(p.id)}
             />
-            {p.labelAr}
+            {dict.contactForm.purposes[p.id] ?? p.labelAr}
           </label>
         ))}
       </fieldset>
 
       <label className="grid gap-1">
-        <span className="text-sm text-[var(--muted)]">الاسم</span>
+        <span className="text-sm text-[var(--muted)]">{dict.contactForm.name}</span>
         <input required name="name" className="field" />
       </label>
       <label className="grid gap-1">
-        <span className="text-sm text-[var(--muted)]">وسيلة الرد</span>
+        <span className="text-sm text-[var(--muted)]">{dict.contactForm.reply}</span>
         <input required name="reply" className="field" />
       </label>
       {needsShop && (
         <>
           <label className="grid gap-1">
-            <span className="text-sm text-[var(--muted)]">اسم المحل</span>
+            <span className="text-sm text-[var(--muted)]">{dict.contactForm.shop}</span>
             <input required name="shop" className="field" />
           </label>
           <label className="grid gap-1">
-            <span className="text-sm text-[var(--muted)]">المنطقة</span>
+            <span className="text-sm text-[var(--muted)]">{dict.contactForm.area}</span>
             <input required name="area" className="field" />
           </label>
         </>
       )}
       <label className="grid gap-1">
-        <span className="text-sm text-[var(--muted)]">الرسالة</span>
+        <span className="text-sm text-[var(--muted)]">{dict.contactForm.message}</span>
         <textarea required name="message" rows={4} className="field resize-y" />
       </label>
 
       <Button type="submit" className="w-fit">
-        {status === "loading" ? "جارٍ الإرسال…" : "إرسال"}
+        {status === "loading" ? dict.contactForm.sending : dict.contactForm.send}
       </Button>
       {status === "done" && (
-        <p className="text-[var(--blue)]">تم استلام رسالتك. سنتواصل معك قريباً.</p>
+        <p className="text-[var(--blue)]">{dict.contactForm.done}</p>
       )}
-      {status === "error" && <p className="text-red-600">فشل الإرسال — حاول مجدداً.</p>}
+      {status === "error" && (
+        <p className="text-red-600">{dict.contactForm.error}</p>
+      )}
     </form>
   );
 }
