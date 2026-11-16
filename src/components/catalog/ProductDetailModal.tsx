@@ -14,6 +14,7 @@ import {
 } from "@/data/catalog";
 import { FlavorBackdrop } from "@/components/catalog/FlavorBackdrop";
 import { cn } from "@/lib/cn";
+import { lockPageScroll, unlockPageScroll } from "@/lib/lenis-control";
 import "./product-detail-modal.css";
 
 export function ProductDetailModal({
@@ -35,19 +36,65 @@ export function ProductDetailModal({
   );
 
   const [flavor, setFlavor] = useState<FlavorId>(flavors[0]?.id ?? "chocolate");
+  const primaryUnit = product.units[0];
 
   useEffect(() => {
     if (flavors[0]) setFlavor(flavors[0].id);
   }, [flavors]);
 
   useEffect(() => {
-    const prev = document.body.style.overflow;
+    const scrollY = window.scrollY;
+    lockPageScroll();
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
+
+    const onTouchStart = (e: TouchEvent) => {
+      const panel = panelRef.current;
+      if (!panel || !e.touches[0]) return;
+      panel.dataset.touchY = String(e.touches[0].clientY);
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      const target = e.target as Element | null;
+      const panel = panelRef.current;
+      const inPanel = target?.closest?.(".product-modal__panel");
+      if (!inPanel || !panel) {
+        e.preventDefault();
+        return;
+      }
+
+      const { scrollTop, scrollHeight, clientHeight } = panel;
+      const touch = e.touches[0];
+      if (!touch) return;
+      const lastY = Number(panel.dataset.touchY ?? touch.clientY);
+      const delta = touch.clientY - lastY;
+      panel.dataset.touchY = String(touch.clientY);
+      const atTop = scrollTop <= 0 && delta > 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 1 && delta < 0;
+      if (atTop || atBottom) e.preventDefault();
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      const target = e.target as Element | null;
+      if (!target?.closest?.(".product-modal__panel")) {
+        e.preventDefault();
+      }
+    };
+
     window.addEventListener("keydown", onKey);
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
+    document.addEventListener("wheel", onWheel, { passive: false });
+
+    const isMobile = window.matchMedia("(max-width: 819px)").matches;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -57,14 +104,43 @@ export function ProductDetailModal({
       );
       gsap.fromTo(
         panelRef.current,
-        { y: 28, scale: 0.96, autoAlpha: 0 },
-        { y: 0, scale: 1, autoAlpha: 1, duration: 0.45, ease: "power3.out" },
+        isMobile
+          ? { y: "108%", autoAlpha: 1 }
+          : { y: 28, scale: 0.96, autoAlpha: 0 },
+        isMobile
+          ? { y: 0, autoAlpha: 1, duration: 0.48, ease: "power3.out" }
+          : { y: 0, scale: 1, autoAlpha: 1, duration: 0.45, ease: "power3.out" },
       );
+
+      if (isMobile) {
+        gsap.fromTo(
+          ".product-modal__media, .product-modal__dock > *",
+          { y: 18, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.4,
+            stagger: 0.045,
+            delay: 0.12,
+            ease: "power2.out",
+          },
+        );
+      }
     }, rootRef);
 
     return () => {
-      document.body.style.overflow = prev;
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      window.scrollTo(0, scrollY);
+      unlockPageScroll();
       ctx.revert();
     };
   }, [onClose]);
@@ -81,6 +157,12 @@ export function ProductDetailModal({
   if (typeof document === "undefined") return null;
 
   const activeFlavor = flavors.find((f) => f.id === flavor);
+  const metaBits = [
+    product.weight,
+    category?.nameAr,
+    brand?.nameAr,
+    product.available ? "متوفر" : "غير متوفر",
+  ].filter(Boolean);
 
   return createPortal(
     <div ref={rootRef} className="product-modal" role="presentation">
@@ -97,6 +179,10 @@ export function ProductDetailModal({
         aria-modal="true"
         aria-labelledby={`product-title-${product.id}`}
       >
+        <div className="product-modal__grab" aria-hidden>
+          <span />
+        </div>
+
         <button type="button" className="product-modal__close" onClick={onClose} aria-label="إغلاق">
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path
@@ -109,7 +195,10 @@ export function ProductDetailModal({
         </button>
 
         <div className="product-modal__grid">
-          <div ref={mediaRef} className={cn("product-modal__media", flavors.length && "product-modal__media--flavored")}>
+          <div
+            ref={mediaRef}
+            className={cn("product-modal__media", flavors.length && "product-modal__media--flavored")}
+          >
             {flavors.length > 0 && <FlavorBackdrop flavor={flavor} />}
             <Image
               src={product.image}
@@ -119,18 +208,43 @@ export function ProductDetailModal({
               sizes="(max-width: 820px) 100vw, 460px"
               priority
             />
+
+            {flavors.length > 0 && (
+              <div className="product-modal__swatches" role="tablist" aria-label="اختيار النكهة">
+                {flavors.map((item) => (
+                  <button
+                    key={`swatch-${item.id}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={flavor === item.id}
+                    aria-label={item.nameAr}
+                    title={item.nameAr}
+                    className={cn(
+                      "product-modal__swatch",
+                      `product-modal__swatch--${item.id}`,
+                      flavor === item.id && "is-active",
+                    )}
+                    onClick={() => setFlavor(item.id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="product-modal__content">
-            <p className="product-modal__eyebrow" dir="ltr">
-              {product.nameEn}
-            </p>
-            <h2 id={`product-title-${product.id}`} className="product-modal__title">
-              {product.nameAr}
-            </h2>
+          <div className="product-modal__content product-modal__dock">
+            <div className="product-modal__identity">
+              <p className="product-modal__eyebrow" dir="ltr">
+                {product.nameEn}
+              </p>
+              <h2 id={`product-title-${product.id}`} className="product-modal__title">
+                {product.nameAr}
+              </h2>
+              <p className="product-modal__meta-line">{metaBits.join(" · ")}</p>
+            </div>
+
             <p className="product-modal__desc">{product.descriptionAr}</p>
 
-            <ul className="product-modal__facts">
+            <ul className="product-modal__facts" aria-hidden="true">
               {product.weight && <li>{product.weight}</li>}
               {category && <li>{category.nameAr}</li>}
               {brand && <li>{brand.nameAr}</li>}
@@ -167,15 +281,35 @@ export function ProductDetailModal({
               </div>
             )}
 
-            <p className="product-modal__units-title">وحدات البيع</p>
-            <ul className="product-modal__units">
-              {product.units.map((unit) => (
-                <li key={unit.id} className="product-modal__unit">
-                  <span>{unit.labelAr}</span>
-                  <strong>{formatMoney(unit.price)}</strong>
-                </li>
-              ))}
-            </ul>
+            {primaryUnit && (
+              <div className="product-modal__price-hero">
+                <span className="product-modal__price-label">{primaryUnit.labelAr}</span>
+                <strong className="product-modal__price-value">{formatMoney(primaryUnit.price)}</strong>
+              </div>
+            )}
+
+            <div
+              className={cn(
+                "product-modal__units-block",
+                product.units.length < 2 && "product-modal__units-block--solo",
+              )}
+            >
+              <p className="product-modal__units-title">وحدات البيع</p>
+              <ul className="product-modal__units">
+                {product.units.map((unit, index) => (
+                  <li
+                    key={unit.id}
+                    className={cn(
+                      "product-modal__unit",
+                      index === 0 && "product-modal__unit--primary",
+                    )}
+                  >
+                    <span>{unit.labelAr}</span>
+                    <strong>{formatMoney(unit.price)}</strong>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             <a href="#contact" className="product-modal__cta" onClick={onClose}>
               استفسر عن هذا الصنف

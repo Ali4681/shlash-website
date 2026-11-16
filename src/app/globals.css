@@ -35,7 +35,8 @@ html.scroll-locked body {
   touch-action: none;
 }
 
-html.scroll-locked .site-header__drawer {
+html.scroll-locked .site-header__drawer,
+html.scroll-locked .product-modal__panel {
   touch-action: pan-y;
 }
 
